@@ -1,0 +1,68 @@
+/* printStyles.css */
+
+/* Adjust page size for printing */
+@media print {
+    body * {
+        visibility: hidden;
+        /* Hide everything else on the page */
+    }
+
+    .modal-content,
+    .modal-content * {
+        visibility: visible;
+        /* Show only modal content */
+        width: 100%;
+        /* Make modal content take full page width */
+        height: auto;
+        /* Adjust height based on content */
+        page-break-before: always;
+        /* Ensure modal content starts a new page */
+    }
+
+    /* Adjust the modal size for printing */
+    .modal-content {
+        width: 150%;
+        /* Adjust width (change as per your requirement) */
+        max-width: 2000px;
+        /* Optional: maximum width for the modal */
+        margin: 0 auto;
+        /* Center the modal */
+        font-size: 16px;
+        /* Adjust font size for better readability */
+        padding: 10px;
+        /* Padding around modal content */
+    }
+
+    .modal-header,
+    .modal-footer {
+        display: none;
+        /* Optionally hide header and footer */
+    }
+
+    /* You can also adjust margins for better fit */
+    @page {
+        size: auto;
+        /* Automatically scale the content to fit the page */
+        margin: 0mm;
+        /* Set margins to your preference */
+    }
+
+    /* Optional: Adjust page break behavior */
+    .modal-body {
+        page-break-after: always;
+        /* Force a new page if content is large */
+    }
+
+    input {
+        border: none;
+        /* Remove border */
+        background: none;
+        /* Remove background */
+        font-family: 'Times New Roman', Times, serif;
+        /* Match the font to text */
+        font-size: 14px;
+        /* Adjust font size */
+        color: black;
+        /* Ensure text color is visible */
+    }
+}

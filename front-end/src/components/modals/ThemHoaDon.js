@@ -1,0 +1,326 @@
+import { useEffect, useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import { toast } from 'react-toastify';
+import _ from "lodash";
+import { apiLayThongTinNhaTroFilter, apiLayThongTinPhongChiSoCu, apiLayThongTinPhongFilter, apiLayThongTinPhongTienThuePhong, apiTaoHoaDon } from '../../services/apiServices';
+import { v4 as uuidv4 } from 'uuid';
+import "./ThemHoaDon.css";
+
+const ThemHoaDon = (props) => {
+
+    const { show, setShow } = props;
+    const machutro = 'ND001';
+    const [chiSoMoiDv1, setChiSoMoiDv1] = useState("");
+    const [chiSoMoiDv2, setChiSoMoiDv2] = useState("");
+    // const [maNhaTro, setmaNhaTro] = useState("");
+    // const [maPhong, setMaPhong] = useState("");
+    const [chiSoCu, setChiSoCu] = useState([]);
+    const [dichVuThuePhong, setDichVuThuePhong] = useState({});
+    const [dsNhaTro, setDsNhaTro] = useState([]);
+    const [dsPhong, setDsPhong] = useState([]);
+    const [maPhongSelected, setMaPhongSelected] = useState("");
+    const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
+    const [maQr, setmaQr] = useState("");
+    const [myBank, setMyBank] = useState({
+        bankId: 'vietcombank',
+        accountNo: '9337405155',
+        accountName: 'NGO QUAN THANH NHA',
+        noidungchuyenkhoan: ""
+    })
+    const initHoaDon = [{
+        madv: "",
+        chisomoi: "",
+        thanhtien: "",
+        soluongdasudung: 0
+    },
+    {
+        madv: "",
+        chisomoi: "",
+        thanhtien: "",
+        soluongdasudung: 0
+    }
+    ]
+    const [hoaDon, setHoaDon] = useState(initHoaDon);
+    const today = '2023-6-5';
+    const dateNow = () => {
+        // var today = new Date();
+        // var dd = String(today.getDate()).padStart(2, '0');
+        // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        // var yyyy = today.getFullYear();
+
+        // today = yyyy+"-"+mm+"-"+dd;
+
+        return today;
+    }
+    const handleBuildHoaDon = (index, chisocu, dongia, madv) => {
+        let temp = _.cloneDeep(hoaDon);
+        if (temp[index].chisomoi < chisocu) {
+            toast.error("Chỉ số mới phải lớn hoặc bằng chỉ số cũ");
+            return;
+        }
+        temp[index].madv = madv;
+        temp[index].soluongdasudung = (+temp[index].chisomoi - +chisocu).toFixed(1);
+        temp[index].thanhtien = (+temp[index].soluongdasudung) * +dongia;
+
+        setHoaDon(temp);
+    }
+
+    const handleHide = () => {
+        setShow(false);
+    }
+
+    const LayThongTinNhaTroToFilter = async () => {
+
+        const res = await apiLayThongTinNhaTroFilter(machutro);
+
+        if (res.errorCode == 0) {
+            setDsNhaTro(res.data);
+        }
+    }
+
+    const LayThongTinPhongToFilter = async () => {
+
+        const res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
+
+        if (res.errorCode == 0) {
+            setDsPhong(res.data);
+        }
+    }
+
+    const LayThongTinTienThuePhong = async () => {
+        const res = await apiLayThongTinPhongTienThuePhong(maNhaTroSelected, maPhongSelected);
+        if (res.errorCode == 0) {
+            setDichVuThuePhong(res.data[0]);
+        }
+    }
+    const LayThongTinChiSoCu = async () => {
+
+        const res = await apiLayThongTinPhongChiSoCu(maNhaTroSelected, maPhongSelected, today);
+
+        if (res.errorCode == 0) {
+            setChiSoCu(res.data);
+        }
+    }
+    useEffect(() => {
+        if (show === true) {
+
+            LayThongTinNhaTroToFilter();
+        }
+    }, [show])
+    useEffect(() => {
+        if (show === true) {
+            LayThongTinPhongToFilter();
+            LayThongTinChiSoCu();
+            LayThongTinTienThuePhong();
+        }
+    }, [maNhaTroSelected, maPhongSelected, show])
+    const handleOnChangeInput = (index, value) => {
+        const temp = _.cloneDeep(hoaDon);
+        temp[index].chisomoi = value;
+        setHoaDon(temp);
+    }
+    useEffect(() => {
+        if (show === false) {
+            initThemHoaDon();
+        }
+    }, [show])
+
+    const handleOnSave = async () => {
+        let data = buildDataToSave();
+        // let res = await apiTaoHoaDon(data);
+        // if (res.errorCode == 0) {
+        //     toast.success(res.message);
+        // }
+
+        const linkQr = `https://img.vietqr.io/image/${myBank.bankId}-${myBank.accountNo}-
+        qr_only.png?amount=${data[2].tongtien}&addInfo=
+        ${'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi}
+        &accountName=${myBank.accountName}`
+        setmaQr(linkQr);
+        let temp = _.cloneDeep(myBank);
+        temp.noidungchuyenkhoan = 'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi;
+        setMyBank(temp);
+        window.print();
+    }
+    const taoMaHoaDon = () => {
+        let mahd = maNhaTroSelected + maPhongSelected;
+        let lengthuuid = 10 - mahd.length;
+
+        const uuid = uuidv4(); // Example: '6f9c10f1-0a8e-4c28-b8c2-742c84e89819'
+        const customLengthuuid = uuid.replace(/-/g, '').substring(0, lengthuuid); // Example: '6f9c10f10a'
+        mahd = mahd + customLengthuuid;
+        return mahd;
+    }
+    const buildDataToSave = () => {
+        let mahd = taoMaHoaDon();
+        let tongtien = (+hoaDon[0].thanhtien) + (+hoaDon[1].thanhtien) + (+dichVuThuePhong.gia);
+        let thongTinBoSung = {
+            tongtien: tongtien,
+            mahd: mahd,
+            manhatro: maNhaTroSelected,
+            maphong: maPhongSelected,
+            ngayghi: today
+        }
+        let dataToSave = _.cloneDeep(hoaDon);
+        dataToSave.push(thongTinBoSung);
+        return dataToSave;
+    }
+
+    const initThemHoaDon = () => {
+        setmaQr("");
+        setHoaDon(initHoaDon);
+    }
+
+
+    return (
+        <Modal
+            show={show}
+            onHide={handleHide}
+            size="lg"
+            aria-labelledby="contained-modal-title-vcenter"
+            centered
+        >
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    Lập hóa đơn
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <div className='d-flex '>
+                    <div class="form-group d-flex align-items-center me-5">
+                        <label className="d-block w-75" for="inputState">
+                            Nhà trọ
+                        </label>
+                        <select style={{ width: '115px' }}
+                            id="inputState" class="form-control"
+                            value={maNhaTroSelected}
+                            onChange={(e) => setMaNhaTroSelected(e.target.value)}
+                        >
+                            <option defaultValue={""} value={""}>
+                                Chọn nhà trọ
+                            </option>
+                            {dsNhaTro.map((item, index) => {
+                                return (
+                                    <>
+                                        <option
+                                            value={item.manhatro}>
+                                            {item.tennhatro}
+                                        </option>
+                                    </>
+                                )
+                            })}
+
+                        </select>
+                    </div>
+
+                    <div class="form-group d-flex align-items-center me-5">
+                        <label className="d-block w-50 me-2" for="inputState">
+                            Phòng
+                        </label>
+                        <select id="inputState" class="form-control"
+                            value={maPhongSelected}
+                            onChange={(e) => setMaPhongSelected(e.target.value)}
+                        >
+                            <option defaultValue={""} value={""}>
+                                Chọn phòng
+                            </option>
+                            {dsPhong.map((item, index) => {
+                                return (
+                                    <>
+                                        <option value={item.MAPHONG}>
+                                            {item.MAPHONG}
+                                        </option>
+                                    </>
+                                )
+                            })}
+                        </select>
+                    </div>
+                </div>
+                <table style={{ width: "100%", borderCollapse: 'collapse', marginTop: '20px' }}>
+                    <thead>
+                        <tr style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Tên dịch vụ</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Chỉ số cũ</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Chỉ số mới</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Số lượng đã sử dụng</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Đơn giá</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Đơn vị tính</th>
+                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Thành tiền</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+                        {chiSoCu.map((item, index) => {
+                            return (
+                                <>
+                                    <tr>
+                                        <td style={{ padding: '10px' }}>{item.tendichvu}</td>
+                                        <td style={{ padding: '10px' }}>{item.CHISOCU}</td>
+                                        <td style={{ padding: '10px' }}>
+                                            <input min={"100"} type="text" class="form-control w-75"
+                                                placeholder="Chỉ số mới" aria-label="Username"
+                                                aria-describedby="basic-addon1"
+                                                value={hoaDon[index].chisomoi}
+                                                readOnly={show === false}
+                                                onChange={(e) => handleOnChangeInput(index, e.target.value)}
+                                                onBlur={(e) => handleBuildHoaDon(index, item.CHISOCU, item.gia, item.madichvu)} />
+                                        </td>
+                                        <td style={{ padding: '10px' }}>
+                                            {hoaDon[index].soluongdasudung > 0 ?
+                                                hoaDon[index].soluongdasudung : 0
+                                            }
+                                        </td>
+                                        <td style={{ padding: '10px' }}>{(+item.gia).toLocaleString()}</td>
+                                        <td style={{ padding: '10px' }}>{item.DONVITINH}</td>
+                                        <td style={{ padding: '10px' }}>{(+hoaDon[index].thanhtien).toLocaleString()}</td>
+                                    </tr>
+                                </>
+                            )
+                        })}
+
+
+                        <tr>
+                            <td style={{ padding: '10px' }}>{dichVuThuePhong && dichVuThuePhong.tendichvu ? dichVuThuePhong.tendichvu : ""}</td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}>Phòng</td>
+                            <td style={{ padding: '10px' }}>{(+dichVuThuePhong?.gia || 0).toLocaleString()}</td>
+                        </tr>
+                        <tr>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}></td>
+                            <td style={{ padding: '10px' }}>Tổng tiền</td>
+                            <td style={{ padding: '10px' }}>{(+hoaDon[0].thanhtien + (+hoaDon[1].thanhtien) + (+dichVuThuePhong?.gia || 0)).toLocaleString()} </td>
+                        </tr>
+                    </tbody>
+                </table>
+                {maQr == "" ? "" :
+                    <div className='d-flex jutify-content-center align-items-center'>
+
+                        <img className="w-50 h-50" src={maQr} alt="" />
+                        <div className='d-inline-block'>
+                            <p>Chủ tài khoản: {myBank.accountName}</p>
+                            <p>Ngân hàng: {myBank.bankId}</p>
+                            <p>Số tài khoản: {myBank.accountNo}</p>
+                            <p>Nội dung chuyển khoản: {myBank.noidungchuyenkhoan}</p>
+                        </div>
+                    </div>
+                }
+
+            </Modal.Body>
+            <Modal.Footer>
+                <Button className='btn btn-primary' onClick={() => handleOnSave()}>Save</Button>
+                <Button className='btn btn-warning' onClick={() => handleHide()}>Close</Button>
+
+            </Modal.Footer>
+        </Modal>
+    );
+}
+
+export default ThemHoaDon;
