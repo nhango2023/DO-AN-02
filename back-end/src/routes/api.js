@@ -29,8 +29,10 @@ const initApiRoutes = (app) => {
     router.post("/phong/create", apiController.taoPhong);
     router.post("/phong/themnguoidungvaophong", apiController.themNguoiVaoPhong);
     router.post("/login", apiController.loGin);
-    router.post("/logout", apiController.logOut);
+    router.get("/logout", apiController.logOut);
     router.get("/hoadon/read", apiController.layThongTinHoaDon);
+    router.get("/xacthuc", apiController.xacThucNguoiDung);
+    router.put("/hoadon/suatrangthaihoadon", apiController.SuaTrangThaiHoaDon);
 
     return app.use("/api/v1/", router);
 }

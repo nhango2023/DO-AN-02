@@ -30,8 +30,10 @@ const verifyJwt = (token) => {
 const xacThucNguoiDung = (req, res) => {
     try {
         let cookie = req.cookies;
-        if (cookie && cookie.accessToken) {
-            let token = cookie.accessToken;
+
+        if (cookie && cookie.jwt) {
+            let token = cookie.jwt;
+
             let decodedToken = verifyJwt(token);
             if (decodedToken && decodedToken !== "TokenExpired") {
                 req.user = decodedToken;
@@ -166,12 +168,11 @@ const layThongTinPhong = async (req, res) => {
 const layThongTinNguoiThuePhong = async (req, res) => {
     const conn = await pool.getConnection();
     try {
-
         let machutro = req.query.machutro;
         let maphong = req.query.maphong == "" ? null : req.query.maphong;
         let manhatro = req.query.manhatro == "" ? null : req.query.manhatro;
         let tennguoithuephong = req.query.tennguoithuephong == "" ? null : req.query.tennguoithuephong;
-        let sql = "CALL sp_GetRentersInfor(?, ?, ?, ?)";
+        let sql = "CALL LayDanhSachNguoiThuePhong(?, ?, ?, ?)";
 
         let [results] = await conn.query(sql, [machutro, tennguoithuephong, manhatro, maphong]);
 
@@ -370,6 +371,7 @@ const taoPhong = async (req, res) => {
     const conn = await pool.getConnection();
     try {
         let data = req.body;
+
         let sql = `CALL ThemPhong(?,?,?,?,?,?,?,?,?,?,?,?, @result)`;
         await conn.query(sql, [data.manhatro, data.maphong, data.mota,
         data.chieudai, data.chieurong, data.ngaytao, data.madv1, data.giadv1,
@@ -402,8 +404,8 @@ const themNguoiVaoPhong = async (req, res) => {
     const conn = await pool.getConnection();
     try {
         let data = req.body;
-        let sql = `CALL ThemNguoiDungVaoPhong(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @result, @message);`;
         data.matkhau = maHoaMatKhau(data.matkhau);
+        let sql = `CALL ThemNguoiDungVaoPhong(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @result, @message);`;
         // Call the stored procedure
         await conn.query(sql, [
             data.idnguoidung,
@@ -535,6 +537,45 @@ const logOut = async (req, res) => {
 
 }
 
+const SuaTrangThaiHoaDon = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        let mahoadon = req.body.mahoadon;
+        let matrangthaihd = req.body.matrangthaihd;
+        let sql;
+        if (matrangthaihd == "1") {
+            sql = `UPDATE hoadon
+            SET matrangthaihd = 2
+            WHERE mahoadon=?;`;
+        }
+        else {
+            sql = `UPDATE hoadon
+            SET matrangthaihd = 1
+            WHERE mahoadon=?;`;
+        }
+
+        await conn.query(sql, [mahoadon]);
+
+        return res.status(200).json({
+            data: "",
+            message: "Sửa trạng thái hóa đơn thành công",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+
+}
+
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -551,7 +592,8 @@ module.exports = {
     layThongTinHoaDon,
     loGin,
     xacThucNguoiDung,
-    logOut
+    logOut,
+    SuaTrangThaiHoaDon
 }
 
 // const ReadProduct = async (req, res) => {

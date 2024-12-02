@@ -3,8 +3,8 @@ import "./TrangQuanLy.css";
 import {
     IoIosArrowDown, IoIosArrowForward,
 } from "react-icons/io";
-import { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { Link, Outlet, Navigate, useNavigate } from "react-router-dom";
 import { IoBarChartOutline } from "react-icons/io5";
 import { FiUser } from "react-icons/fi";
 import { BsDoorOpen } from "react-icons/bs";
@@ -15,12 +15,38 @@ import ThemHoaDon from "./modals/ThemHoaDon.js"
 import ThemNhaTro from "./modals/ThemNhaTro.js";
 import ThemPhong from "./modals/ThemPhong.js";
 import ThemNguoiDungVaoPhong from "./modals/ThemNguoiDungVaoPhong.js";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import { apiLogOut, apiXacThuc } from "../../services/apiServices";
+import { toast } from "react-toastify";
+import { set } from "lodash";
+import { removeUserDataRedux } from "../../redux/action/userAction.js";
+import logo from "./logo.png"
+import { TfiReload } from "react-icons/tfi";
 
 const TrangQuanLy = () => {
     const user = useSelector(state => state.user.data);
     const xacThuc = useSelector(state => state.user.xacThuc);
+    const navigate = useNavigate();
+    const checkLogin = async () => {
+        if (xacThuc === true) {
+            let res = await apiXacThuc();
+            if (res.errorCode != 0) {
+                navigate("/dangnhap");
+            }
+            else {
+                if (user.maloainguoidung === "LTK002") {
+                    navigate("/nguoithuetrong/trangquanly");
+                }
+            }
+        }
+        else {
+            navigate("/dangnhap");
+        }
+    }
 
+    useEffect(() => {
+        checkLogin();
+    }, [])
     const [openMenuNhaTro, setOpenMenuNhaTro] = useState(false);
     const [openMenuPhong, setOpenMenuPhong] = useState(false);
     const [openMenuNguoiThuePhong, setOpenMenuNguoiThuePhong] = useState(false);
@@ -31,15 +57,34 @@ const TrangQuanLy = () => {
     const [showThemNhaTro, setShowThemNhaTro] = useState(false);
     const [showThemPhong, setShowThemPhong] = useState(false);
     const [showThemNguoiDungVaoPhong, setShowThemNguoiDungVaoPhong] = useState(false);
+
+    const dispatch = useDispatch();
+    const handleLogOut = async () => {
+        let res = await apiLogOut();
+        if (res.errorCode == 0) {
+            toast.success("Đăng xuất thành công");
+            dispatch(removeUserDataRedux());
+            setTimeout(() => {
+                navigate("/dangnhap");
+            }, 1500);
+        }
+        else {
+            toast.error("Đăng xuất không thành công, vui lòng thử lại");
+        }
+    }
+
+    const handleReload = () => {
+        window.location.reload();
+    }
     return (
         <>
             <div className="container-fluid " style={{ height: '100%' }}>
                 <div className="row">
                     <div style={{ boxShadow: 'rgba(182, 182, 182, 0.5) 0px 2px 10px' }}
                         className="col-2 border">
-                        <div>
-                            <img width={"90px"} height={"90px"}
-                                src="https://nhatro24h.vn/assets/img/icon-24h/logo-horent_remove_bg.png" alt="" />
+                        <div className="d-flex justify-content-center p-2">
+                            <img width={"90px"} height={"75px"}
+                                src={logo} alt="" />
                         </div>
                         <div className="hoverdadce0" style={{ padding: "12px" }}>
                             <Link to="/">
@@ -195,7 +240,7 @@ const TrangQuanLy = () => {
                                     </button>
                                     <button type="button" class="btn btn-primary d-flex align-items-center"
                                         onClick={() => setShowThemHoaDon(true)}>
-                                        <CiSquarePlus style={{ fontSize: '24px' }} /> Lâp hóa đơn
+                                        <CiSquarePlus style={{ fontSize: '24px' }} />Lập hóa đơn
                                     </button>
                                     <button type="button" class="btn btn-primary mx-2 d-flex align-items-center"
                                         onClick={() => setShowThemNguoiDungVaoPhong(true)}>
@@ -203,15 +248,22 @@ const TrangQuanLy = () => {
                                     </button>
 
                                 </div>
-                                <div class="dropdown">
-                                    <button class="btn " type="button" id="dropdownMenuButton"
-                                        data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                        <FaUserCircle style={{ fontSize: '30px' }} />
+                                <div className="d-flex align-items-center">
+
+                                    <button
+                                        onClick={() => handleReload()}
+                                        className="btn" style={{ paddingTop: "7px" }}>
+                                        <TfiReload className="h4" />
                                     </button>
-                                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                                        <a class="dropdown-item" href="#">Action</a>
-                                        <a class="dropdown-item" href="#">Another action</a>
-                                        <a class="dropdown-item" href="#">Something else here</a>
+                                    <div class="dropdown">
+                                        <button class="btn " type="button" id="dropdownMenuButton"
+                                            data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <span className="me-2 h5">{user.hoten}</span><FaUserCircle style={{ fontSize: '30px' }} />
+                                        </button>
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <button class="dropdown-item" >Hồ sơ của bạn</button>
+                                            <button class="dropdown-item" onClick={() => handleLogOut()}>Đăng xuất</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

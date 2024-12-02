@@ -9,11 +9,12 @@ import {
 } from "../../../services/apiServices";
 import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
-
+import { useSelector } from 'react-redux';
 const ThemPhong = (props) => {
 
     const { show, setShow } = props;
-    const machutro = "ND001";
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
     const today = '2023-1-1';
     const initPhong = {
         manhatro: '',
@@ -71,8 +72,8 @@ const ThemPhong = (props) => {
 
     const buildDataToSave = () => {
         let temp = _.cloneDeep(phong);
-        temp.chieudai = +temp.chieudai;
-        temp.chieurong = +temp.chieurong;
+        temp.chieudai = (+temp.chieudai).toFixed(1);
+        temp.chieurong = (+temp.chieurong).toFixed(1);
         temp.madv1 = 'DV001';
         temp.madv2 = 'DV002';
         temp.madv3 = 'DV003';
@@ -84,6 +85,7 @@ const ThemPhong = (props) => {
         if (res.errorCode === 0) {
             if (res.data === 1) {
                 toast.success("Tạo phòng thành công");
+                setPhong(initPhong);
             }
             else {
                 toast.error("Mã phòng đã tồn tại!!");
@@ -159,7 +161,7 @@ const ThemPhong = (props) => {
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="chieudai">Chiều Dài</label>
+                            <label htmlFor="chieudai">Chiều Dài (m)</label>
                             <input
                                 type="number"
                                 className="form-control"
@@ -167,11 +169,12 @@ const ThemPhong = (props) => {
                                 name="chieudai"
                                 value={phong.chieudai}
                                 onChange={handleChange}
+                                min={"0"}
                             />
                         </div>
 
                         <div className="form-group">
-                            <label htmlFor="chieurong">Chiều Rộng</label>
+                            <label htmlFor="chieurong">Chiều Rộng (m)</label>
                             <input
                                 type="number"
                                 className="form-control"
@@ -179,6 +182,7 @@ const ThemPhong = (props) => {
                                 name="chieurong"
                                 value={phong.chieurong}
                                 onChange={handleChange}
+                                min={"0"}
                             />
                         </div>
 
@@ -189,8 +193,9 @@ const ThemPhong = (props) => {
                                 className="form-control"
                                 id="giadv1"
                                 name="giadv1"
-                                value={phong.giadv1}
+                                value={(phong.giadv1)}
                                 onChange={handleChange}
+                                min={"0"}
                             />
                         </div>
 
@@ -203,6 +208,7 @@ const ThemPhong = (props) => {
                                 name="giadv2"
                                 value={phong.giadv2}
                                 onChange={handleChange}
+                                min={"0"}
                             />
                         </div>
 
@@ -215,6 +221,7 @@ const ThemPhong = (props) => {
                                 name="giadv3"
                                 value={phong.giadv3}
                                 onChange={handleChange}
+                                min={"0"}
                             />
                         </div>
                     </form>

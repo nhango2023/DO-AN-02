@@ -9,11 +9,12 @@ import {
 } from "../../../services/apiServices";
 import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
-
+import { useSelector } from 'react-redux';
 const ThemNguoiDungVaPhong = (props) => {
 
     const { show, setShow } = props;
-    const machutro = "ND001";
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
     const [dsNhaTro, setDsNhaTro] = useState([]);
     const [dsPhong, setDsPhong] = useState([]);
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
@@ -28,6 +29,7 @@ const ThemNguoiDungVaPhong = (props) => {
         anhdaidien: '',
         maphong: '',
         manhatro: '',
+        ngayvaophong: ''
     };
     const [nguoiDung, setNguoiDung] = useState(initNguoiDung);
 
@@ -72,20 +74,22 @@ const ThemNguoiDungVaPhong = (props) => {
             return;
         }
         let data = buildDataToSave();
-        let res = await apiThemNguoiDungVaoPhong(data);
-        console.log(data.taikhoan);
-        if (res.errorCode === 0) {
-            if (res.data === 1) {
-                toast.success(res.message);
-                setNguoiDung(initNguoiDung);
-            }
-            else {
-                toast.error(res.message);
-            }
-        }
-        else {
-            toast.error(res.message);
-        }
+        console.log(data);
+        setNguoiDung(initNguoiDung);
+        // let res = await apiThemNguoiDungVaoPhong(data);
+        // console.log(data.taikhoan);
+        // if (res.errorCode === 0) {
+        //     if (res.data === 1) {
+        //         toast.success(res.message);
+        //         setNguoiDung(initNguoiDung);
+        //     }
+        //     else {
+        //         toast.error(res.message);
+        //     }
+        // }
+        // else {
+        //     toast.error(res.message);
+        // }
     }
 
     const handleHide = () => {
@@ -258,7 +262,6 @@ const ThemNguoiDungVaPhong = (props) => {
                                 id="ngayvaophong"
                                 name="ngayvaophong"
                                 value={nguoiDung.ngayvaophong}
-                                dateFormat="dd-MM-yyyy"
                                 onChange={handleChange}
                                 required
                             />

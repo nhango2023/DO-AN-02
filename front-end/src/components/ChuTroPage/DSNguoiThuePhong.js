@@ -7,9 +7,12 @@ import {
     apiLayThongTinNguoiThuePhong, apiLayThongTinNhaTroFilter,
     apiLayThongTinPhongFilter
 } from "../../services/apiServices";
+import { useSelector } from "react-redux";
 
 const DSNguoiThuePhong = () => {
-    const machutro = 'ND001';
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
+
     const [tenToFilter, setTenToFilter] = useState("");
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
     const [maPhongSelected, setMaPhongSelected] = useState("");
@@ -37,7 +40,7 @@ const DSNguoiThuePhong = () => {
 
         const res = await apiLayThongTinNguoiThuePhong(machutro, maPhongSelected,
             maNhaTroSelected, tenToFilter);
-
+        console.log(machutro, maPhongSelected, maNhaTroSelected, tenToFilter);
         if (res.errorCode == 0) {
             setDsNguoiThuePhong(res.data);
         }

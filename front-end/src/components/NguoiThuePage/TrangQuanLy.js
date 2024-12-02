@@ -1,20 +1,40 @@
-
 import "./TrangQuanLy.css";
 import {
     IoIosArrowDown, IoIosArrowForward,
 } from "react-icons/io";
-import { useState } from "react";
-import { Link, Outlet } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Link, Navigate, Outlet, useNavigate } from "react-router-dom";
 import { IoBarChartOutline } from "react-icons/io5";
 import { IoReceiptOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
 import { useSelector } from "react-redux";
+import { apiXacThuc } from "../../services/apiServices";
 
 const TrangQuanLy = () => {
     const user = useSelector(state => state.user.data);
     const xacThuc = useSelector(state => state.user.xacThuc);
+    const navigate = useNavigate();
+    const checkLogin = async () => {
+        if (xacThuc === true) {
+            let res = await apiXacThuc();
+            if (res.errorCode != 0) {
+                navigate("login");
+            }
+            else {
+                if (user.maloainguoidung === "LTK001") {
+                    navigate("chutro/trangquanly");
+                }
+            }
+        }
+        else {
+            navigate("login");
+        }
+    }
 
+    useEffect(() => {
+        checkLogin();
+    }, [])
     const [openMenuNhaTro, setOpenMenuNhaTro] = useState(false);
     const [openMenuPhong, setOpenMenuPhong] = useState(false);
     const [openMenuNguoiThuePhong, setOpenMenuNguoiThuePhong] = useState(false);

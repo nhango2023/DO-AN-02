@@ -4,9 +4,10 @@ import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
 import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong } from "../../services/apiServices";
-
+import { useSelector } from "react-redux";
 const DSPhong = () => {
-    const machutro = 'ND001';
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
 
     const [maPhongToFillTer, setMaPhongToFillTer] = useState("");
     const [dsNhaTro, setDsNhaTro] = useState([]);

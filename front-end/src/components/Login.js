@@ -1,14 +1,35 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import "./DangKyTaiKhoan.css";
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { toast } from 'react-toastify';
 import _ from "lodash";
-import { apiLogin, apiTaoNguoiDung } from '../services/apiServices';
+import { apiLogin, apiTaoNguoiDung, apiXacThuc } from '../services/apiServices';
 import { useDispatch } from 'react-redux';
 import { saveUserDataRedux } from '../redux/action/userAction';
+import { useSelector } from 'react-redux';
 
 const Login = () => {
+    const navigate = useNavigate();
+    const user = useSelector(state => state.user.data);
+    const xacThuc = useSelector(state => state.user.xacThuc);
+    const checkLogin = async () => {
+        if (xacThuc === true) {
+            let res = await apiXacThuc();
+            if (res.errorCode == 0) {
+                if (user.maloainguoidung === "LTK002") {
+                    navigate("/nguoithuetrong/trangquanly");
+                }
+                else if (user.maloainguoidung === "LTK001") {
+                    navigate("/chutro/trangquanly");
+                }
+            }
+        }
+    }
+
+    useEffect(() => {
+        checkLogin();
+    }, [])
     const [nguoiDung, setNguoiDung] = useState({
         taikhoan: '',
         matkhau: ''
@@ -27,14 +48,24 @@ const Login = () => {
 
 
     const handleOnSave = async () => {
-
-
         let res = await apiLogin(nguoiDung);
         if (res.errorCode === 0) {
             if (res.data) {
                 toast.success(res.message);
-                console.log(res.data);
+
                 dispatch(saveUserDataRedux(res.data));
+                if (res.data.maloainguoidung === "LTK001") {
+                    setTimeout(() => {
+                        navigate("/chutro/trangquanly");
+                    }, 1000);
+
+                }
+                else if (res.data.maloainguoidung === "LTK002") {
+                    setTimeout(() => {
+                        navigate("/nguoithue/trangquanly");
+                    }, 1000);
+
+                }
             }
             else {
                 toast.error(res.message);

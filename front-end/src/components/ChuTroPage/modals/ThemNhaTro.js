@@ -6,11 +6,12 @@ import _ from "lodash";
 import { apiTaoNhaTro } from "../../../services/apiServices";
 import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
-
+import { useSelector } from 'react-redux';
 const ThemNhaTro = (props) => {
 
     const { show, setShow } = props;
-    const machutro = 'ND001';
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
     const initNhaTro = {
         manhatro: "",
         idnguoidung: machutro,
@@ -66,6 +67,7 @@ const ThemNhaTro = (props) => {
         let res = await apiTaoNhaTro(data);
         if (res.errorCode === 0) {
             toast.success("Tạo nhà trọ thành công");
+            setShow(false);
         }
         else {
             toast.error("Server error!!");
@@ -75,9 +77,7 @@ const ThemNhaTro = (props) => {
     const handleOnChange = (keyword, value) => {
         let temp = _.cloneDeep(nhaTro);
         if (keyword === "tennhatro") {
-
             temp.tennhatro = value;
-            console.log(temp.tennhatro);
         }
         else if (keyword === "diadiem") {
             temp.diadiem = value;

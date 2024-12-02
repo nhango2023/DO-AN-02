@@ -5,6 +5,7 @@ import { RiUserAddLine } from "react-icons/ri";
 import { IoIosLogIn } from "react-icons/io";
 import "./TrangChu.css";
 
+
 const TrangChu = () => {
     const [minPrice, setMinPrice] = useState(0);
     const [maxPrice, setMaxPrice] = useState(10000);

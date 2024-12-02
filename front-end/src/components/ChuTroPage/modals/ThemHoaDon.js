@@ -11,11 +11,13 @@ import {
 } from "../../../services/apiServices";
 import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
+import { useSelector } from 'react-redux';
 
 const ThemHoaDon = (props) => {
 
     const { show, setShow } = props;
-    const machutro = 'ND001';
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
     const [chiSoMoiDv1, setChiSoMoiDv1] = useState("");
     const [chiSoMoiDv2, setChiSoMoiDv2] = useState("");
     // const [maNhaTro, setmaNhaTro] = useState("");
@@ -48,7 +50,7 @@ const ThemHoaDon = (props) => {
     }
     ]
     const [hoaDon, setHoaDon] = useState(initHoaDon);
-    const today = '2023-10-5';
+    const today = '2023-4-3';
     const dateNow = () => {
         // var today = new Date();
         // var dd = String(today.getDate()).padStart(2, '0');
@@ -156,12 +158,8 @@ const ThemHoaDon = (props) => {
         // window.print();
     }
     const taoMaHoaDon = () => {
-        let mahd = maNhaTroSelected + maPhongSelected;
-        let lengthuuid = 10 - mahd.length;
-
         const uuid = uuidv4(); // Example: '6f9c10f1-0a8e-4c28-b8c2-742c84e89819'
-        const customLengthuuid = uuid.replace(/-/g, '').substring(0, lengthuuid); // Example: '6f9c10f10a'
-        mahd = mahd + customLengthuuid;
+        const mahd = uuid.replace(/-/g, '').substring(0, 10); // Example: '6f9c10f10a  
         return mahd;
     }
     const buildDataToSave = () => {
