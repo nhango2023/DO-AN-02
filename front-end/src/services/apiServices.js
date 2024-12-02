@@ -34,6 +34,30 @@ const apiTaoHoaDon = (data) => {
     return axios.post("/api/v1/hoadon/create", { ...data });
 }
 
+const apiTaoNhaTro = (data) => {
+    return axios.post("/api/v1/nhatro/create", { ...data });
+}
+
+const apiTaoPhong = (data) => {
+    return axios.post("/api/v1/phong/create", { ...data });
+}
+
+const apiTaoNguoiDung = (data) => {
+    return axios.post("/api/v1/nguoidung/create", { ...data });
+}
+
+const apiThemNguoiDungVaoPhong = (data) => {
+    return axios.post("/api/v1/phong/themnguoidungvaophong", { ...data });
+}
+
+const apiLayThongTinHoaDon = (machutro, mahoadon, manhatro, maphong, matrangthaihd, ngaylaphd) => {
+    return axios.post(`/api/v1/hoadon/read?machutro=${machutro}&mahoadon=${mahoadon}&manhatro=${manhatro}&maphong=${maphong}&matrangthaihd=${matrangthaihd}&ngaylaphd=${ngaylaphd}`);
+}
+
+const apiLogin = (data) => {
+    return axios.post("/api/v1/login", { ...data });
+}
+
 export {
     apiLayThongTinNhaTro,
     apiLayThongTinNhaTroFilter,
@@ -42,7 +66,13 @@ export {
     apiLayThongTinPhongFilter,
     apiLayThongTinPhongTienThuePhong,
     apiLayThongTinPhongChiSoCu,
-    apiTaoHoaDon
+    apiTaoHoaDon,
+    apiTaoNhaTro,
+    apiTaoPhong,
+    apiTaoNguoiDung,
+    apiThemNguoiDungVaoPhong,
+    apiLayThongTinHoaDon,
+    apiLogin
 }
 
 // const apiReadProduct = (page) => {

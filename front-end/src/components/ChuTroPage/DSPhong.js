@@ -3,7 +3,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
-import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong } from "../services/apiServices";
+import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong } from "../../services/apiServices";
 
 const DSPhong = () => {
     const machutro = 'ND001';
@@ -13,9 +13,8 @@ const DSPhong = () => {
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
     const [dsPhong, setDsPhong] = useState([]);
     const layThongTin = async () => {
-        console.log("here")
         const res1 = await apiLayThongTinNhaTroFilter(machutro);
-
+        console.log()
         if (res1.errorCode == 0) {
             setDsNhaTro(res1.data);
         }
@@ -27,16 +26,13 @@ const DSPhong = () => {
             setDsPhong(res.data);
         }
     }
-
     useEffect(() => {
         layThongTin();
     }, [])
 
     useEffect(() => {
-        console.log(maNhaTroSelected + "--");
         layDsPhong();
     }, [maPhongToFillTer, maNhaTroSelected])
-
     return (
         <>
             <div className="container">

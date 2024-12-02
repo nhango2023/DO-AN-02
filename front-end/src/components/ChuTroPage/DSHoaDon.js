@@ -4,8 +4,39 @@ import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import "./DSHoaDon.css"
+import { useEffect, useState } from "react";
+import { apiLayThongTinNhaTroFilter, apiLayThongTinPhongFilter } from "../../services/apiServices";
 
 const DSHoaDon = () => {
+    const machutro = 'ND001';
+    const [dsNhaTro, setDsNhaTro] = useState([]);
+    const [dsPhong, setDsPhong] = useState([]);
+    const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
+    const [maPhongSelected, setMaPhongSelected] = useState("");
+    const [mahd, setMaHd] = useState("");
+    const LayThongTinNhaTroToFilter = async () => {
+        let res = await apiLayThongTinNhaTroFilter(machutro);
+        if (res.errorCode === 0) {
+            setDsNhaTro(res.data);
+        }
+    }
+
+    const LayThongTinPhongToFilter = async () => {
+
+        let res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
+        console.log(res.data);
+        if (res.errorCode === 0) {
+            setDsPhong(res.data);
+        }
+    }
+
+    useEffect(() => {
+        LayThongTinNhaTroToFilter();
+    }, [])
+
+    useEffect(() => {
+        LayThongTinPhongToFilter();
+    }, [maNhaTroSelected]);
     return (
         <>
             <div className="container">
@@ -14,31 +45,44 @@ const DSHoaDon = () => {
                         <div className="d-flex align-items-center">
                             <form class="form-inline h-50 me-5">
                                 <input style={{ width: '180px' }}
+                                    value={mahd}
+                                    onChange={(e) => setMaHd(e.target.value)}
                                     class="form-control "
                                     type="search" placeholder="Tìm theo mã hóa đơn" aria-label="Search" />
                             </form>
                             <div class="form-group d-flex align-items-center me-5">
                                 <label className="w-50" for="inputState">Nhà trọ</label>
                                 <select id="inputState" class="form-control">
-                                    <option selected>Tất cả</option>
-                                    <option>An Phú</option>
-                                    <option >Hồng phát</option>
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    {dsNhaTro.map((item, index) => {
+                                        return (
+                                            <>
+                                                <option value={item.manhatro}>{item.tennhatro}</option>
+                                            </>
+                                        )
+                                    })}
                                 </select>
                             </div>
                             <div class="form-group d-flex align-items-center me-5">
                                 <label className="w-50" for="inputState">Phòng</label>
                                 <select id="inputState" class="form-control">
-                                    <option selected>Tất cả</option>
-                                    <option>1</option>
-                                    <option >2</option>
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    {dsPhong.map((item, index) => {
+                                        return (
+                                            <>
+                                                <option value={item.MAPHONG}>{item.MAPHONG}</option>
+                                            </>
+                                        )
+                                    })}
+
                                 </select>
                             </div>
                             <div class="form-group d-flex align-items-center">
                                 <label className="w-50" for="inputState">Trạng thái</label>
                                 <select id="inputState" class="form-control">
-                                    <option selected>Tất cả</option>
-                                    <option >Chưa đóng</option>
-                                    <option>Đã đóng</option>
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    <option value="2">Chưa đóng</option>
+                                    <option value="1">Đã đóng</option>
                                 </select>
                             </div>
                         </div>

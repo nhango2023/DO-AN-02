@@ -1,5 +1,82 @@
-import { map } from "lodash";
 import pool from "../configs/DBConnect";
+import bcrypt from "bcryptjs"
+import jwk from "jsonwebtoken"
+require('dotenv');
+
+const createJwt = (payload) => {
+    let token = null;
+    try {
+        token = jwk.sign(payload, process.env.JWT_KEY, { expiresIn: process.env.ACCESS_TOKEN_EXPIRESIN });
+    } catch (e) {
+        console.log(e);
+    }
+    return token;
+}
+
+const verifyJwt = (token) => {
+    let decoded = null;
+    try {
+        decoded = jwk.verify(token, process.env.JWT_KEY);
+
+    } catch (e) {
+        if (e.name == "TokenExpiredError") {
+            return "TokenExpired";
+        }
+        console.log(e);
+    }
+    return decoded;
+}
+
+const xacThucNguoiDung = (req, res) => {
+    try {
+        let cookie = req.cookies;
+        if (cookie && cookie.accessToken) {
+            let token = cookie.accessToken;
+            let decodedToken = verifyJwt(token);
+            if (decodedToken && decodedToken !== "TokenExpired") {
+                req.user = decodedToken;
+                return res.status(200).json({
+                    errorCode: 0,
+                    data: null,
+                    message: 'Xác thực thành công'
+                })
+            }
+            else {
+                return res.status(401).json({
+                    errorCode: -2,
+                    data: null,
+                    message: 'Session hết hạn hoặc session rỗng'
+                })
+            }
+        }
+        else {
+            return res.status(401).json({
+                errorCode: -2,
+                data: null,
+                message: 'Session hết hạn hoặc session rỗng'
+            })
+        }
+    }
+    catch (e) {
+        return res.status(500).json({
+            errorCode: -1,
+            data: null,
+            message: 'Server error'
+        })
+    }
+
+}
+
+
+const maHoaMatKhau = (matkhau) => {
+    const salt = bcrypt.genSaltSync(10);
+    let hashMatKhau = bcrypt.hashSync(matkhau, salt);
+    return hashMatKhau;
+}
+
+const checkPassWord = (passWord, hashmatkhau) => {
+    return bcrypt.compareSync(passWord, hashmatkhau);
+}
 
 
 const layThongTinNhaTro = async (req, res) => {
@@ -234,15 +311,18 @@ const taoNguoiDung = async (req, res) => {
     const conn = await pool.getConnection();
     try {
         let data = req.body;
-        let sql = `CALL ThemNguoiDung(?,?,?,?,?,?,?,@result)`;
+        data.matkhau = maHoaMatKhau(data.matkhau);
+
+        let sql = `CALL ThemNguoiDung(?,?,?,?,?,?,?,@result, @message)`;
         await conn.query(sql, [data.idnguoidung, data.maloainguoidung, data.matkhau,
         data.hoten, data.sodienthoai, data.anhdaidien, data.taikhoan
         ]);
-        let [resultRow] = await conn.query(`SELECT @result AS result`);
+        let [resultRow] = await conn.query(`SELECT @result AS result, @message AS message`);
         let result = resultRow[0].result;
+        let message = resultRow[0].message;
         return res.status(200).json({
             data: result,
-            message: "",
+            message: message,
             errorCode: 0,
         })
     }
@@ -318,6 +398,143 @@ const taoPhong = async (req, res) => {
     }
 }
 
+const themNguoiVaoPhong = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        let data = req.body;
+        let sql = `CALL ThemNguoiDungVaoPhong(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, @result, @message);`;
+        data.matkhau = maHoaMatKhau(data.matkhau);
+        // Call the stored procedure
+        await conn.query(sql, [
+            data.idnguoidung,
+            data.maloainguoidung,
+            data.matkhau,
+            data.hoten,
+            data.sodienthoai,
+            data.anhdaidien,
+            data.taikhoan,
+            data.manhatro,
+            data.maphong,
+            data.ngayvaophong
+        ]);
+
+        // Retrieve the output variables
+        let [resultRows] = await conn.query(`SELECT @result AS result, @message AS message`);
+        let result = resultRows[0].result;
+        let message = resultRows[0].message;
+
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: "",
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const layThongTinHoaDon = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        let machutro = req.query.machutro;
+        let mahoadon = req.query.mahoadon === "" ? null : req.query.mahoadon
+        let manhatro = req.query.manhatro === "" ? null : req.query.manhatro;
+        let maphong = req.query.maphong === "" ? null : req.query.maphong;
+        let matrangthaihd = req.query.matrangthaihd === "" ? null : req.query.matrangthaihd;
+        let ngaylaphd = req.query.ngaylaphoadon === "" ? null : req.query.ngaylaphoadon;
+        let sql = `CALL layHoaDon(?,?,?,?,?,?);`;
+
+        let [results] = await conn.query(sql, [machutro, mahoadon, manhatro,
+            maphong, matrangthaihd, ngaylaphd]);
+        return res.status(200).json({
+            data: results[0],
+            message: "lay thong tin hoa hon thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+
+const loGin = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        let data = req.body;
+        let sql1 = `SELECT idnguoidung, matkhau FROM nguoidung WHERE taikhoan=?`;
+        let [results] = await conn.query(sql1, [data.taikhoan]);
+        let taikhoan = results[0];
+        if (taikhoan) {
+            if (checkPassWord(data.matkhau, taikhoan.matkhau)) {
+                let sql2 = "select idnguoidung, maloainguoidung, hoten from nguoidung where idnguoidung=?";
+                let [result] = await conn.query(sql2, [taikhoan.idnguoidung]);
+                let cookie = createJwt(result[0]);
+                res.cookie("jwt", cookie, { httpOnly: true, maxAge: process.env.COOKIE_MAXAGE });
+                return res.status(200).json({
+                    data: result[0],
+                    message: "Đăng nhập thành công",
+                    errorCode: 0,
+                })
+            };
+        }
+
+        return res.status(200).json({
+            data: "",
+            message: "Tài khoản hoặc mật khẩu không chính xác",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const logOut = async (req, res) => {
+    try {
+        res.clearCookie("jwt");
+        return res.status(200).json({
+            data: "",
+            message: "Log out thành công",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+
+}
+
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -330,6 +547,11 @@ module.exports = {
     taoNguoiDung,
     taoNhaTro,
     taoPhong,
+    themNguoiVaoPhong,
+    layThongTinHoaDon,
+    loGin,
+    xacThucNguoiDung,
+    logOut
 }
 
 // const ReadProduct = async (req, res) => {

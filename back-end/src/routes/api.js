@@ -27,6 +27,11 @@ const initApiRoutes = (app) => {
     router.post("/nguoidung/create", apiController.taoNguoiDung);
     router.post("/nhatro/create", apiController.taoNhaTro);
     router.post("/phong/create", apiController.taoPhong);
+    router.post("/phong/themnguoidungvaophong", apiController.themNguoiVaoPhong);
+    router.post("/login", apiController.loGin);
+    router.post("/logout", apiController.logOut);
+    router.get("/hoadon/read", apiController.layThongTinHoaDon);
+
     return app.use("/api/v1/", router);
 }
 

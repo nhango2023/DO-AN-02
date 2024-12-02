@@ -3,7 +3,10 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useState, useEffect } from "react";
-import { apiLayThongTinNguoiThuePhong, apiLayThongTinNhaTroFilter, apiLayThongTinPhong, apiLayThongTinPhongFilter } from "../services/apiServices";
+import {
+    apiLayThongTinNguoiThuePhong, apiLayThongTinNhaTroFilter,
+    apiLayThongTinPhongFilter
+} from "../../services/apiServices";
 
 const DSNguoiThuePhong = () => {
     const machutro = 'ND001';

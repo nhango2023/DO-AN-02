@@ -3,7 +3,7 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useState, useEffect } from "react";
-import { apiLayThongTinNhaTro } from "../services/apiServices";
+import { apiLayThongTinNhaTro } from "../../services/apiServices";
 
 const DSNhaTro = () => {
     const machutro = 'ND001';

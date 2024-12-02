@@ -1,4 +1,4 @@
-import { IoHomeOutline } from "react-icons/io5";
+
 import "./TrangQuanLy.css";
 import {
     IoIosArrowDown, IoIosArrowForward,
@@ -6,14 +6,15 @@ import {
 import { useState } from "react";
 import { Link, Outlet } from "react-router-dom";
 import { IoBarChartOutline } from "react-icons/io5";
-import { FiUser } from "react-icons/fi";
-import { BsDoorOpen } from "react-icons/bs";
 import { IoReceiptOutline } from "react-icons/io5";
 import { FaUserCircle } from "react-icons/fa";
 import { CiSquarePlus } from "react-icons/ci";
-import ThemHoaDon from "./modals/ThemHoaDon.js"
+import { useSelector } from "react-redux";
 
 const TrangQuanLy = () => {
+    const user = useSelector(state => state.user.data);
+    const xacThuc = useSelector(state => state.user.xacThuc);
+
     const [openMenuNhaTro, setOpenMenuNhaTro] = useState(false);
     const [openMenuPhong, setOpenMenuPhong] = useState(false);
     const [openMenuNguoiThuePhong, setOpenMenuNguoiThuePhong] = useState(false);
@@ -21,7 +22,9 @@ const TrangQuanLy = () => {
     const [openMenuBaoCao, setOpenMenuBaocao] = useState(false);
 
     const [showThemHoaDon, setShowThemHoaDon] = useState(false);
-
+    const [showThemNhaTro, setShowThemNhaTro] = useState(false);
+    const [showThemPhong, setShowThemPhong] = useState(false);
+    const [showThemNguoiDungVaoPhong, setShowThemNguoiDungVaoPhong] = useState(false);
     return (
         <>
             <div className="container-fluid " style={{ height: '100%' }}>
@@ -38,84 +41,6 @@ const TrangQuanLy = () => {
                             </Link>
                         </div>
                         <div class="">
-                            <div class="card-header" id="headingOne">
-                                <div class="mb-0 hoverdadce0">
-                                    <button class="btn w-100 d-flex justify-content-between" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseOne"
-                                        aria-expanded="true"
-                                        aria-controls="collapseOne"
-                                        onClick={() => setOpenMenuNhaTro(!openMenuNhaTro)}
-                                    >
-                                        <div className="d-flex align-items-center">
-                                            <IoHomeOutline className="me-1" /> Nhà trọ
-                                        </div>
-                                        <div>
-                                            {openMenuNhaTro ? <IoIosArrowDown /> : <IoIosArrowForward />}
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="collapseOne" class="collapse "
-                                aria-labelledby="headingOne" data-parent="#accordion">
-                                <Link to="nhatro/dsnhatro" class="card-body hoverdadce0 d-block w-100 ps-5">
-                                    Danh sách nhà trọ
-                                </Link>
-
-                            </div>
-                        </div>
-                        <div class="">
-                            <div class="card-header" id="headingTwo">
-                                <div class="mb-0 hoverdadce0">
-                                    <button class="btn w-100 d-flex justify-content-between" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseTwo"
-                                        aria-expanded="true"
-                                        aria-controls="collapseTwo"
-                                        onClick={() => setOpenMenuPhong(!openMenuPhong)}
-                                    >
-                                        <div className="d-flex align-items-center">
-                                            <BsDoorOpen className="me-1" /> Phòng
-                                        </div>
-                                        <div>
-                                            {openMenuPhong ? <IoIosArrowDown /> : <IoIosArrowForward />}
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="collapseTwo" class="collapse "
-                                aria-labelledby="headingTwo" data-parent="#accordion">
-                                <Link to="phong/dsphong" class="card-body hoverdadce0 d-block w-100 ps-5">
-                                    Danh sách phòng
-                                </Link>
-                            </div>
-                        </div><div class="">
-                            <div class="card-header" id="headingThree">
-                                <div class="mb-0 hoverdadce0">
-                                    <button class="btn w-100 d-flex justify-content-between" data-bs-toggle="collapse"
-                                        data-bs-target="#collapseThree"
-                                        aria-expanded="true"
-                                        aria-controls="collapseThree"
-                                        onClick={() => setOpenMenuNguoiThuePhong(!setOpenMenuNguoiThuePhong)}
-                                    >
-                                        <div className="d-flex align-items-center">
-                                            <FiUser className="me-1" /> Người thuê phòng
-                                        </div>
-                                        <div>
-                                            {openMenuNguoiThuePhong ? <IoIosArrowDown /> : <IoIosArrowForward />}
-                                        </div>
-                                    </button>
-                                </div>
-                            </div>
-
-                            <div id="collapseThree" class="collapse "
-                                aria-labelledby="headingThree" data-parent="#accordion">
-                                <Link to="nguoithue/dsnguoithuephong" class="card-body hoverdadce0 d-block w-100 ps-5">
-                                    Danh sách người thuê
-                                </Link>
-
-                            </div>
-                        </div><div class="">
                             <div class="card-header" id="headingFour">
                                 <div class="mb-0 hoverdadce0">
                                     <button class="btn w-100 d-flex justify-content-between" data-bs-toggle="collapse"
@@ -133,14 +58,8 @@ const TrangQuanLy = () => {
                                     </button>
                                 </div>
                             </div>
-
-                            <div id="collapseFour" class="collapse "
-                                aria-labelledby="headingFour" data-parent="#accordion">
-                                <Link to="hoadon/dshoadon" class="card-body hoverdadce0 d-block w-100 ps-5">
-                                    Danh sách hóa đơn
-                                </Link>
-                            </div>
-                        </div><div class="">
+                        </div>
+                        <div class="">
                             <div class="card-header" id="headingFive">
                                 <div class="mb-0 hoverdadce0">
                                     <button class="btn w-100 d-flex justify-content-between" data-bs-toggle="collapse"
@@ -169,6 +88,7 @@ const TrangQuanLy = () => {
                                 </Link>
                             </div>
                         </div>
+
                     </div>
                     <div className="col-10">
                         <div className="row">
@@ -176,22 +96,23 @@ const TrangQuanLy = () => {
                                 className="col-12 border d-flex justify-content-between align-items-center">
                                 <div className="d-flex">
                                     <button
-                                        type="button" class="btn btn-primary d-flex align-items-center">
+                                        type="button" class="btn btn-primary d-flex align-items-center"
+                                        onClick={() => setShowThemNhaTro(true)}>
                                         <CiSquarePlus style={{ fontSize: '24px' }} /> Thêm nhà trọ
                                     </button>
-                                    <button type="button" class="btn btn-primary mx-2 d-flex align-items-center">
+                                    <button type="button" class="btn btn-primary mx-2 d-flex align-items-center"
+                                        onClick={() => setShowThemPhong(true)}>
                                         <CiSquarePlus style={{ fontSize: '24px' }} /> Thêm phòng
                                     </button>
                                     <button type="button" class="btn btn-primary d-flex align-items-center"
                                         onClick={() => setShowThemHoaDon(true)}>
                                         <CiSquarePlus style={{ fontSize: '24px' }} /> Lâp hóa đơn
                                     </button>
-                                    <button type="button" class="btn btn-primary mx-2 d-flex align-items-center">
-                                        <CiSquarePlus style={{ fontSize: '24px' }} /> Thêm khách thuê
+                                    <button type="button" class="btn btn-primary mx-2 d-flex align-items-center"
+                                        onClick={() => setShowThemNguoiDungVaoPhong(true)}>
+                                        <CiSquarePlus style={{ fontSize: '24px' }} /> Thêm khách thuê vào phòng
                                     </button>
-                                    <button type="button" class="btn btn-primary d-flex align-items-center">
-                                        <CiSquarePlus style={{ fontSize: '24px' }} /> Thuê khách vào phòng
-                                    </button>
+
                                 </div>
                                 <div class="dropdown">
                                     <button class="btn " type="button" id="dropdownMenuButton"
@@ -213,10 +134,7 @@ const TrangQuanLy = () => {
                     </div>
                 </div>
             </div>
-            <ThemHoaDon
-                show={showThemHoaDon}
-                setShow={setShowThemHoaDon}
-            />
+
         </>
     )
 }
