@@ -116,7 +116,7 @@ const ThemPhong = (props) => {
             </Modal.Header>
             <Modal.Body>
                 <div className="container mt-5">
-                    <h3>Form Nhập Thông Tin Nhà Trọ</h3>
+
                     <form >
                         <div className="form-group">
                             <label htmlFor="manhatro">Tên Nhà Trọ</label>

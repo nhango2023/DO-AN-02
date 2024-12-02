@@ -33,6 +33,7 @@ const initApiRoutes = (app) => {
     router.get("/hoadon/read", apiController.layThongTinHoaDon);
     router.get("/xacthuc", apiController.xacThucNguoiDung);
     router.put("/hoadon/suatrangthaihoadon", apiController.SuaTrangThaiHoaDon);
+    router.get("/laydoanhthu", apiController.LayDoanhThu);
 
     return app.use("/api/v1/", router);
 }

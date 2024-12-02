@@ -29,7 +29,8 @@ const App = () => {
                     <Route path='baocao/doanhthunhatro' element={<TongDoanhThu />} />
                     <Route path='baocao/doanhthuphongtro' element={<TongDoanhThu />} />
                 </Route>
-                <Route path="/nguoithue/trangquanly" element={<TrangQuanLyNguoiThue />}>
+                <Route path="/nguoithuephong/trangquanly" element={<TrangQuanLyNguoiThue />}>
+
                 </Route >
 
             </Routes>

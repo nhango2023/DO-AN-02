@@ -66,8 +66,13 @@ const apiXacThuc = () => {
 const apiLogOut = () => {
     return axios.get("/api/v1/logout");
 }
+
 const apiSuaTrangThaiHoaDon = (data) => {
     return axios.put("/api/v1/hoadon/suatrangthaihoadon", { ...data });
+}
+
+const apiLayDoanhThu = (machutro, manhatro, nam) => {
+    return axios.get(`/api/v1/laydoanhthu?machutro=${machutro}&nam=${nam}&manhatro=${manhatro}`);
 }
 
 export {
@@ -87,7 +92,8 @@ export {
     apiLogin,
     apiXacThuc,
     apiLogOut,
-    apiSuaTrangThaiHoaDon
+    apiSuaTrangThaiHoaDon,
+    apiLayDoanhThu
 }
 
 // const apiReadProduct = (page) => {

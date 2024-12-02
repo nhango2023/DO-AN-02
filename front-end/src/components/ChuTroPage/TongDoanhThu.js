@@ -1,6 +1,58 @@
 import "./TongDoanhThu.css";
+import { useSelector } from "react-redux";
+import { useEffect, useState } from "react";
+import { apiLayDoanhThu, apiLayThongTinNhaTroFilter } from "../../services/apiServices";
 
 const TongDoanhThu = () => {
+    const user = useSelector(state => state.user.data);
+    const machutro = user.idnguoidung;
+    const [dsDoanhThu, setDsDoanhThu] = useState([]);
+    const [tongDoanhThu, setTongDoanhThu] = useState(0);
+    const [namSelected, setNamSelected] = useState("");
+    const [dsNhaTro, setDsNhaTro] = useState([]);
+    const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
+    const yearNow = () => {
+        const today = new Date();
+        const yyyy = today.getFullYear();
+        return yyyy;
+    }
+    const layDoanhThu = async () => {
+        let res = await apiLayDoanhThu(machutro, maNhaTroSelected, namSelected);
+        if (res.errorCode == 0) {
+            setDsDoanhThu(res.data);
+            let tongdoanhthu = 0;
+            res.data.forEach(element => {
+                tongdoanhthu = tongdoanhthu + element.TongDoanhThu;
+            });
+            setTongDoanhThu(tongdoanhthu);
+        }
+    }
+
+    const layThongTinNhaTroToFilter = async () => {
+        let res = await apiLayThongTinNhaTroFilter(machutro);
+        if (res.errorCode == 0) {
+            setDsNhaTro(res.data);
+        }
+    }
+
+    useEffect(() => {
+        layDoanhThu();
+        layThongTinNhaTroToFilter();
+    }, [])
+    useEffect(() => {
+        layDoanhThu();
+
+    }, [namSelected, maNhaTroSelected])
+
+    function formatDoanhThu(value) {
+        if (value >= 1000000) {
+            return Math.round(value / 1000000); // Round and divide by 1M for numbers >= 1M
+        } else if (value >= 100000) {
+            return Math.round((value / 100000) * 10) / 10; // Divide by 100K for numbers >= 100K
+        } else {
+            return value; // Return as-is for smaller values
+        }
+    }
     return (
         <>
             <div className="container-fluid">
@@ -10,19 +62,31 @@ const TongDoanhThu = () => {
 
                             <div class="form-group d-flex align-items-center me-5">
                                 <label className="w-50" for="inputState">Khoảng thời gian</label>
-                                <select id="inputState" class="form-control">
-                                    <option selected>Tới hiện tại</option>
-                                    <option>Trong năm nay</option>
-
+                                <select id="inputState" class="form-control"
+                                    value={namSelected}
+                                    onChange={(e) => setNamSelected(e.target.value + "")}
+                                >
+                                    <option defaultValue={""} value={""}>Tới hiện tại</option>
+                                    <option value={yearNow()}>Năm nay</option>
+                                    <option value={+yearNow() - 1}>Năm trước</option>
                                 </select>
                             </div>
                             <div class="form-group d-flex align-items-center me-5">
                                 <label className="w-50" for="inputState">Nhà trọ</label>
-                                <select id="inputState" class="form-control">
-                                    <option selected>Tổng tất cả</option>
-                                    <option >Phú Quý</option>
-                                    <option >Phát Đạt</option>
-                                    <option >Hồng Phát</option>
+                                <select id="inputState" class="form-control"
+                                    value={maNhaTroSelected}
+                                    onChange={(e) => setMaNhaTroSelected(e.target.value)}
+                                >
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    {dsNhaTro.map((item, index) => {
+                                        return (
+                                            <>
+                                                <option value={item.manhatro}>
+                                                    {item.tennhatro}
+                                                </option>
+                                            </>
+                                        )
+                                    })}
                                 </select>
                             </div>
 
@@ -36,71 +100,43 @@ const TongDoanhThu = () => {
                 <div className="row mt-2" style={{ height: '610px' }}>
                     <div className="col-12">
                         <div className="chart-container">
-                            <h4>Doanh số</h4>
+                            <h4>Doanh thu</h4>
                             <div className="chart">
                                 <div className="y-axis">
-                                    <div>100M</div>
-                                    <div>75M</div>
-                                    <div>50M</div>
-                                    <div>25M</div>
-                                    <div>0</div>
+                                    <div>{formatDoanhThu((tongDoanhThu / 5) * 5)}M</div>
+                                    <div>{formatDoanhThu((tongDoanhThu / 5) * 4)}M</div>
+                                    <div>{formatDoanhThu((tongDoanhThu / 5) * 3)}M</div>
+                                    <div>{formatDoanhThu((tongDoanhThu / 5) * 2)}M</div>
+                                    <div>{formatDoanhThu((tongDoanhThu / 5) * 1)}M</div>
+                                    <div>{0}</div>
                                 </div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "60%" }}
-                                    title="Doanh thu: 60M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "80%" }}
-                                    title="Doanh thu: 80M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "50%" }}
-                                    title="Doanh thu: 50M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "90%" }}
-                                    title="Doanh thu: 90M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "70%" }}
-                                    title="Doanh thu: 70M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "40%" }}
-                                    title="Doanh thu: 40M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "85%" }}
-                                    title="Doanh thu: 85M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "40%" }}
-                                    title="Doanh thu: 40M"
-                                ></div>
-                                <div
-                                    className="bar"
-                                    style={{ "--final-height": "85%" }}
-                                    title="Doanh thu: 85M"
-                                ></div>
+                                {dsDoanhThu.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div
+                                                className="bar"
+                                                style={{
+                                                    "--final-height": tongDoanhThu
+                                                        ? `${(item.TongDoanhThu / tongDoanhThu) * 100}%`
+                                                        : "0%",
+                                                }}
+                                                title={(+item.TongDoanhThu).toLocaleString()}
+                                            >
+                                            </div>
+                                        </>
+                                    )
+                                })}
+
+
                             </div>
                             <div className="months">
-                                <div className="month">Tháng 1</div>
-                                <div className="month">Tháng 2</div>
-                                <div className="month">Tháng 3</div>
-                                <div className="month">Tháng 4</div>
-                                <div className="month">Tháng 5</div>
-                                <div className="month">Tháng 6</div>
-                                <div className="month">Tháng 7</div>
-                                <div className="month">Tháng 8</div>
-                                <div className="month">Tháng 9</div>
+                                {dsDoanhThu.map((item, index) => {
+                                    return (
+                                        <>
+                                            <div className="month">{item.Thang + "/" + item.Nam}</div>
+                                        </>
+                                    )
+                                })}
                             </div>
                         </div>
                     </div>

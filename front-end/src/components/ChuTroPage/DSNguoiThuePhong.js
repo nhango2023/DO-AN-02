@@ -114,7 +114,7 @@ const DSNguoiThuePhong = () => {
                         </div>
                     </div>
                 </div>
-                <div style={{ height: "572px" }} className="row mt-2">
+                <div style={{ height: "572px", overflowY: 'scroll' }} className="row mt-2">
                     {dsNguoiThuePhong.map((item, index) => {
                         return (
                             <>

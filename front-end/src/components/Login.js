@@ -62,7 +62,7 @@ const Login = () => {
                 }
                 else if (res.data.maloainguoidung === "LTK002") {
                     setTimeout(() => {
-                        navigate("/nguoithue/trangquanly");
+                        navigate("/nguoithuephong/trangquanly");
                     }, 1000);
 
                 }

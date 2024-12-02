@@ -576,6 +576,34 @@ const SuaTrangThaiHoaDon = async (req, res) => {
 
 }
 
+const LayDoanhThu = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        let machutro = req.query.machutro;
+        let manhatro = req.query.manhatro == "" ? null : req.query.manhatro;
+        let nam = req.query.nam == "" ? null : req.query.nam;
+        let sql = `CALL layDoanhThu(?,?,?);`;
+        let [result] = await conn.query(sql, [machutro, nam, manhatro]);
+        return res.status(200).json({
+            data: result[0],
+            message: "Lấy doanh thu thành công",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+
+}
+
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -593,7 +621,8 @@ module.exports = {
     loGin,
     xacThucNguoiDung,
     logOut,
-    SuaTrangThaiHoaDon
+    SuaTrangThaiHoaDon,
+    LayDoanhThu
 }
 
 // const ReadProduct = async (req, res) => {

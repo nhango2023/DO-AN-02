@@ -262,8 +262,10 @@ const TrangQuanLy = () => {
                                         </button>
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
                                             <button class="dropdown-item" >Hồ sơ của bạn</button>
+                                            <button class="dropdown-item" onClick={() => handleLogOut()}>Đổi mật khẩu</button>
                                             <button class="dropdown-item" onClick={() => handleLogOut()}>Đăng xuất</button>
                                         </div>
+
                                     </div>
                                 </div>
                             </div>

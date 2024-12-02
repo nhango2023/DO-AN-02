@@ -74,22 +74,20 @@ const ThemNguoiDungVaPhong = (props) => {
             return;
         }
         let data = buildDataToSave();
-        console.log(data);
-        setNguoiDung(initNguoiDung);
-        // let res = await apiThemNguoiDungVaoPhong(data);
-        // console.log(data.taikhoan);
-        // if (res.errorCode === 0) {
-        //     if (res.data === 1) {
-        //         toast.success(res.message);
-        //         setNguoiDung(initNguoiDung);
-        //     }
-        //     else {
-        //         toast.error(res.message);
-        //     }
-        // }
-        // else {
-        //     toast.error(res.message);
-        // }
+        let res = await apiThemNguoiDungVaoPhong(data);
+        console.log(data.taikhoan);
+        if (res.errorCode === 0) {
+            if (res.data === 1) {
+                toast.success(res.message);
+                setNguoiDung(initNguoiDung);
+            }
+            else {
+                toast.error(res.message);
+            }
+        }
+        else {
+            toast.error(res.message);
+        }
     }
 
     const handleHide = () => {

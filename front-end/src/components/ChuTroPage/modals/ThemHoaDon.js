@@ -50,13 +50,12 @@ const ThemHoaDon = (props) => {
     }
     ]
     const [hoaDon, setHoaDon] = useState(initHoaDon);
-    const today = '2023-4-3';
+    const today = '2024-2-1';
     const dateNow = () => {
         // var today = new Date();
         // var dd = String(today.getDate()).padStart(2, '0');
         // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
         // var yyyy = today.getFullYear();
-
         // today = yyyy+"-"+mm+"-"+dd;
 
         return today;

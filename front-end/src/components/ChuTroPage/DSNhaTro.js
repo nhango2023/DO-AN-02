@@ -43,7 +43,7 @@ const DSNhaTro = () => {
                         </div>
                     </div>
                 </div>
-                <div style={{ height: "572px" }}
+                <div style={{ height: "572px", overflowY: 'scroll' }}
                     className="row mt-2">
                     {dsNhaTro.map((item, index) => {
                         return (

@@ -19,16 +19,16 @@ const TrangQuanLy = () => {
         if (xacThuc === true) {
             let res = await apiXacThuc();
             if (res.errorCode != 0) {
-                navigate("login");
+                navigate("dangnhap");
             }
             else {
                 if (user.maloainguoidung === "LTK001") {
-                    navigate("chutro/trangquanly");
+                    navigate("/chutro/trangquanly");
                 }
             }
         }
         else {
-            navigate("login");
+            navigate("dangnhap");
         }
     }
 

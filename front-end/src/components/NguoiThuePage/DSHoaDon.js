@@ -19,59 +19,59 @@ const DSHoaDon = () => {
     const [mahd, setMaHd] = useState("");
     const [maTrangThai, setMaTrangThai] = useState("");
     const [dsHoaDon, setDsHoaDon] = useState([]);
-    const LayThongTinNhaTroToFilter = async () => {
-        let res = await apiLayThongTinNhaTroFilter(machutro);
-        if (res.errorCode === 0) {
-            setDsNhaTro(res.data);
-        }
-    }
+    // const LayThongTinNhaTroToFilter = async () => {
+    //     let res = await apiLayThongTinNhaTroFilter(machutro);
+    //     if (res.errorCode === 0) {
+    //         setDsNhaTro(res.data);
+    //     }
+    // }
 
-    const LayThongTinPhongToFilter = async () => {
+    // const LayThongTinPhongToFilter = async () => {
 
-        let res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
-        console.log(res.data);
-        if (res.errorCode === 0) {
-            setDsPhong(res.data);
-        }
-    }
+    //     let res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
+    //     console.log(res.data);
+    //     if (res.errorCode === 0) {
+    //         setDsPhong(res.data);
+    //     }
+    // }
 
-    const layThongTinHoaDon = async () => {
-        let res = await apiLayThongTinHoaDon(machutro, mahd, maNhaTroSelected, maPhongSelected, maTrangThai);
-        console.log(res);
-        if (res.errorCode == 0) {
-            setDsHoaDon(res.data);
-        }
-        else {
-            console.log(res.message);
-        }
-    }
+    // const layThongTinHoaDon = async () => {
+    //     let res = await apiLayThongTinHoaDon(machutro, mahd, maNhaTroSelected, maPhongSelected, maTrangThai);
+    //     console.log(res);
+    //     if (res.errorCode == 0) {
+    //         setDsHoaDon(res.data);
+    //     }
+    //     else {
+    //         console.log(res.message);
+    //     }
+    // }
 
-    useEffect(() => {
-        LayThongTinNhaTroToFilter();
-    }, [])
+    // useEffect(() => {
+    //     LayThongTinNhaTroToFilter();
+    // }, [])
 
-    useEffect(() => {
-        LayThongTinPhongToFilter();
-    }, [maNhaTroSelected]);
+    // useEffect(() => {
+    //     LayThongTinPhongToFilter();
+    // }, [maNhaTroSelected]);
 
-    useEffect(() => {
-        layThongTinHoaDon();
-    }, [maNhaTroSelected, maPhongSelected, maTrangThai, mahd]);
+    // useEffect(() => {
+    //     layThongTinHoaDon();
+    // }, [maNhaTroSelected, maPhongSelected, maTrangThai, mahd]);
 
-    const handleSuaTrangThaiHoaDon = async (mahoadon, matrangthaihd) => {
-        let data = {
-            mahoadon,
-            matrangthaihd
-        }
-        let res = await apiSuaTrangThaiHoaDon(data);
-        if (res.errorCode == 0) {
-            toast.success("Thay đổi trạng thái hóa đơn thành công");
-            layThongTinHoaDon();
-        }
-        else {
-            console.log(res.message);
-        }
-    }
+    // const handleSuaTrangThaiHoaDon = async (mahoadon, matrangthaihd) => {
+    //     let data = {
+    //         mahoadon,
+    //         matrangthaihd
+    //     }
+    //     let res = await apiSuaTrangThaiHoaDon(data);
+    //     if (res.errorCode == 0) {
+    //         toast.success("Thay đổi trạng thái hóa đơn thành công");
+    //         layThongTinHoaDon();
+    //     }
+    //     else {
+    //         console.log(res.message);
+    //     }
+    // }
     return (
         <>
             <div className="container">
@@ -134,11 +134,11 @@ const DSHoaDon = () => {
                         </div>
                     </div>
                 </div>
-                <div style={{ height: "572px", overflowY: "scroll" }} className="row mt-1">
+                <div style={{ height: "572px" }} className="row mt-1">
                     {dsHoaDon.map((item, index) => {
                         return (
                             <>
-                                <div className="col-3 py-0 p-2 my-3 ">
+                                <div className="col-3 py-0 px-2">
                                     <div style={{ background: 'white', borderRadius: '8px' }}>
                                         <div className="d-flex justify-content-between">
                                             <p className="mb-1 px-3 fw-bold">{item.MAHOADON}</p>
