@@ -8,7 +8,6 @@ import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
 import { useSelector } from 'react-redux';
 const ThemNhaTro = (props) => {
-
     const { show, setShow } = props;
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
@@ -21,17 +20,16 @@ const ThemNhaTro = (props) => {
         chieudai: "",
         chieurong: "",
         anhdaidien: ''
-
     }
     const [nhaTro, setNhaTro] = useState(initNhaTro);
     const today = '2023-1-1';
     const dateNow = () => {
-        // var today = new Date();
-        // var dd = String(today.getDate()).padStart(2, '0');
-        // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        // var yyyy = today.getFullYear();
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
 
-        // today = yyyy+"-"+mm+"-"+dd;
+        today = yyyy + "-" + mm + "-" + dd;
 
         return today;
     }
@@ -57,39 +55,46 @@ const ThemNhaTro = (props) => {
     const buildDataToSave = () => {
         let temp = _.cloneDeep(nhaTro);
         temp.manhatro = taoMaNhaTro();
-        temp.ngaytao = today;
         temp.chieudai = +temp.chieudai;
         temp.chieurong = +temp.chieurong;
         return temp;
     }
     const handleOnSave = async () => {
         let data = buildDataToSave();
+
         let res = await apiTaoNhaTro(data);
         if (res.errorCode === 0) {
             toast.success("Tạo nhà trọ thành công");
-            setShow(false);
+            window.location.reload();
         }
         else {
             toast.error("Server error!!");
         }
     }
 
-    const handleOnChange = (keyword, value) => {
-        let temp = _.cloneDeep(nhaTro);
-        if (keyword === "tennhatro") {
-            temp.tennhatro = value;
-        }
-        else if (keyword === "diadiem") {
-            temp.diadiem = value;
-        }
-        else if (keyword === "chieudai") {
-            temp.chieudai = value;
-        }
-        else {
-            temp.chieurong = value;
-        }
-        setNhaTro(temp);
-    }
+    // const handleOnChange = (keyword, value) => {
+    //     let temp = _.cloneDeep(nhaTro);
+    //     if (keyword === "tennhatro") {
+    //         temp.tennhatro = value;
+    //     }
+    //     else if (keyword === "diadiem") {
+    //         temp.diadiem = value;
+    //     }
+    //     else if (keyword === "chieudai") {
+    //         temp.chieudai = value;
+    //     }
+    //     else {
+    //         temp.chieurong = value;
+    //     }
+    //     setNhaTro(temp);
+    // }
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setNhaTro({
+            ...nhaTro,
+            [name]: value,
+        });
+    };
     return (
         <Modal
             show={show}
@@ -104,31 +109,29 @@ const ThemNhaTro = (props) => {
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
-                <div className="container mt-5">
-
+                <div className="container mt-2">
                     <form >
                         <div className="form-group mb-3">
                             <label htmlFor="tenNhaTro">Tên nhà trọ</label>
                             <input
                                 type="text"
                                 className="form-control"
-                                id="tenNhaTro"
-                                name="tenNhaTro"
+                                id="tennhatro"
+                                name="tennhatro"
                                 value={nhaTro.tennhatro}
-                                onChange={(e) => handleOnChange("tennhatro", e.target.value)}
+                                onChange={handleChange}
                                 required
                             />
                         </div>
-
                         <div className="form-group mb-3">
                             <label htmlFor="diaDiem">Địa điểm</label>
                             <input
                                 type="text"
                                 className="form-control"
-                                id="diaDiem"
-                                name="diaDiem"
+                                id="diadiem"
+                                name="diadiem"
                                 value={nhaTro.diadiem}
-                                onChange={(e) => handleOnChange("diadiem", e.target.value)}
+                                onChange={handleChange}
                                 required
                             />
                         </div>
@@ -138,10 +141,10 @@ const ThemNhaTro = (props) => {
                             <input
                                 type="number"
                                 className="form-control"
-                                id="chieuDai"
-                                name="chieuDai"
+                                id="chieudai"
+                                name="chieudai"
                                 value={nhaTro.chieudai}
-                                onChange={(e) => handleOnChange("chieudai", e.target.value)}
+                                onChange={handleChange}
                                 required
                             />
                         </div>
@@ -151,10 +154,22 @@ const ThemNhaTro = (props) => {
                             <input
                                 type="number"
                                 className="form-control"
-                                id="chieuRong"
-                                name="chieuRong"
+                                id="chieurong"
+                                name="chieurong"
                                 value={nhaTro.chieurong}
-                                onChange={(e) => handleOnChange("chieurong", e.target.value)}
+                                onChange={handleChange}
+                                required
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="ngayvaophong">Ngày tạo</label>
+                            <input
+                                type="date"
+                                className="form-control"
+                                id="ngaytao"
+                                name="ngaytao"
+                                value={nhaTro.ngaytao}
+                                onChange={handleChange}
                                 required
                             />
                         </div>

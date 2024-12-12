@@ -1,15 +1,17 @@
 import { IoIosArrowForward } from "react-icons/io";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
-import { IoIosArrowBack } from "react-icons/io";
+
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import "./DSHoaDon.css"
 import { useEffect, useState } from "react";
 import { apiLayThongTinHoaDon, apiLayThongTinNhaTroFilter, apiLayThongTinPhongFilter, apiSuaTrangThaiHoaDon } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
+import { useOutletContext } from "react-router-dom";
 
-const DSHoaDon = () => {
+const DSHoaDon = (props) => {
+    const { currentPage, setTotalPage } = useOutletContext();
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
     const [dsNhaTro, setDsNhaTro] = useState([]);
@@ -29,17 +31,18 @@ const DSHoaDon = () => {
     const LayThongTinPhongToFilter = async () => {
 
         let res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
-        console.log(res.data);
+
         if (res.errorCode === 0) {
             setDsPhong(res.data);
         }
     }
 
     const layThongTinHoaDon = async () => {
-        let res = await apiLayThongTinHoaDon(machutro, mahd, maNhaTroSelected, maPhongSelected, maTrangThai);
-        console.log(res);
+        let res = await apiLayThongTinHoaDon(machutro, mahd, maNhaTroSelected, maPhongSelected, maTrangThai, "", currentPage);
+
         if (res.errorCode == 0) {
             setDsHoaDon(res.data);
+            setTotalPage(res.totalPages);
         }
         else {
             console.log(res.message);
@@ -72,6 +75,10 @@ const DSHoaDon = () => {
             console.log(res.message);
         }
     }
+
+    useEffect(() => {
+        layThongTinHoaDon();
+    }, [currentPage])
     return (
         <>
             <div className="container">
@@ -134,7 +141,7 @@ const DSHoaDon = () => {
                         </div>
                     </div>
                 </div>
-                <div style={{ height: "572px", overflowY: "scroll" }} className="row mt-1">
+                <div style={{ height: "572px" }} className="row mt-1">
                     {dsHoaDon.map((item, index) => {
                         return (
                             <>
@@ -187,18 +194,7 @@ const DSHoaDon = () => {
 
 
                 </div>
-                <div className="row">
-                    <div className="col-12 d-flex justify-content-center">
-                        <div>
-                            <button type="button " class="btn btn-light"><IoIosArrowBack /></button>
-                            <button type="button " class="btn btn-light">1</button>
-                            <button type="button " class="btn btn-light">2</button>
-                            <button type="button " class="btn btn-light">3</button>
-                            <button type="button " class="btn btn-light">4</button>
-                            <button type="button " class="btn btn-light"><IoIosArrowForward /></button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </>
     )

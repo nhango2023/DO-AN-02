@@ -1,18 +1,20 @@
 import { IoIosArrowForward } from "react-icons/io";
 import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
-import { IoIosArrowBack } from "react-icons/io";
+
 import { useState, useEffect } from "react";
 import {
     apiLayThongTinNguoiThuePhong, apiLayThongTinNhaTroFilter,
     apiLayThongTinPhongFilter
 } from "../../services/apiServices";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
+
 
 const DSNguoiThuePhong = () => {
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
-
+    const { currentPage, setTotalPage } = useOutletContext();
     const [tenToFilter, setTenToFilter] = useState("");
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
     const [maPhongSelected, setMaPhongSelected] = useState("");
@@ -39,10 +41,11 @@ const DSNguoiThuePhong = () => {
     const layDsNguoiThuePhong = async () => {
 
         const res = await apiLayThongTinNguoiThuePhong(machutro, maPhongSelected,
-            maNhaTroSelected, tenToFilter);
-        console.log(machutro, maPhongSelected, maNhaTroSelected, tenToFilter);
+            maNhaTroSelected, tenToFilter, currentPage);
+
         if (res.errorCode == 0) {
             setDsNguoiThuePhong(res.data);
+            setTotalPage(res.totalPages);
         }
     }
 
@@ -57,7 +60,9 @@ const DSNguoiThuePhong = () => {
     useEffect(() => {
         layDsNguoiThuePhong();
     }, [maPhongSelected, maNhaTroSelected, tenToFilter])
-
+    useEffect(() => {
+        layDsNguoiThuePhong();
+    }, [currentPage])
     return (
         <>
             <div className="container">
@@ -153,18 +158,7 @@ const DSNguoiThuePhong = () => {
 
 
                 </div>
-                <div className="row">
-                    <div className="col-12 d-flex justify-content-center">
-                        <div>
-                            <button type="button " class="btn btn-light"><IoIosArrowBack /></button>
-                            <button type="button " class="btn btn-light">1</button>
-                            <button type="button " class="btn btn-light">2</button>
-                            <button type="button " class="btn btn-light">3</button>
-                            <button type="button " class="btn btn-light">4</button>
-                            <button type="button " class="btn btn-light"><IoIosArrowForward /></button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </>
     )

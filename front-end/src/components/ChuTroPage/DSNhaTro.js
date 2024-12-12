@@ -5,7 +5,11 @@ import { IoIosArrowBack } from "react-icons/io";
 import { useState, useEffect } from "react";
 import { apiLayThongTinNhaTro } from "../../services/apiServices";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
+import SuaHoaDon from "./modals/SuaNhaTro.js";
+
 const DSNhaTro = () => {
+    const { currentPage, setTotalPage } = useOutletContext();
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
     const [dsNhaTro, setDsNhaTro] = useState([]);
@@ -14,6 +18,7 @@ const DSNhaTro = () => {
         let res = await apiLayThongTinNhaTro(tentro, machutro);
         if (res.errorCode == 0) {
             setDsNhaTro(res.data);
+            setTotalPage(res.totalPages);
         }
     }
     useEffect(() => {
@@ -23,7 +28,12 @@ const DSNhaTro = () => {
     useEffect(() => {
         layThongTinNhaTro();
     }, [tentro]);
+    useEffect(() => {
+        layThongTinNhaTro();
+    }, [currentPage])
 
+    const [showSuaHoaDon, setShowSuaHoaDon] = useState(false);
+    const [maNhaTro, setMaNhaTro] = useState("");
     return (
         <>
             <div className="container">
@@ -54,7 +64,8 @@ const DSNhaTro = () => {
                                         <p className="mb-1 px-3">Diện tích: {+item.CHIEUDAI * +item.CHIEURONG}m<sup>2</sup></p>
                                         <div className="d-flex justify-content-center">
                                             <div>
-                                                <button type="button" class="mx-3 btn btn-info">
+                                                <button onClick={() => { setShowSuaHoaDon(true); setMaNhaTro(item.MANHATRO) }}
+                                                    type="button" class="mx-3 btn btn-info">
                                                     <FaRegEdit /></button>
                                                 <button type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
@@ -81,19 +92,12 @@ const DSNhaTro = () => {
 
 
                 </div>
-                <div className="row">
-                    <div className="col-12 d-flex justify-content-center">
-                        <div>
-                            <button type="button " class="btn btn-light"><IoIosArrowBack /></button>
-                            <button type="button " class="btn btn-light">1</button>
-                            <button type="button " class="btn btn-light">2</button>
-                            <button type="button " class="btn btn-light">3</button>
-                            <button type="button " class="btn btn-light">4</button>
-                            <button type="button " class="btn btn-light"><IoIosArrowForward /></button>
-                        </div>
-                    </div>
-                </div>
             </div>
+            <SuaHoaDon
+                show={showSuaHoaDon}
+                setShow={setShowSuaHoaDon}
+                manhatro={maNhaTro}
+            />
         </>
     )
 }

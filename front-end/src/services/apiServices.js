@@ -1,7 +1,6 @@
 import axios from '../config/Axios';
 
 const apiLayThongTinNhaTro = (tentro, machutro) => {
-
     return axios.get(`/api/v1/nhatro/read?tentro=${tentro}&machutro=${machutro}`);
 }
 
@@ -9,17 +8,17 @@ const apiLayThongTinNhaTroFilter = (machutro) => {
     return axios.get(`/api/v1/nhatro/read/filter?machutro=${machutro}`);
 }
 
-const apiLayThongTinPhong = (machutro, maphong, manhatro) => {
+const apiLayThongTinPhong = (machutro, maphong, manhatro, songuoitrongphong, currentpage) => {
 
-    return axios.get(`/api/v1/phong/read/?machutro=${machutro}&maphong=${maphong}&manhatro=${manhatro}`);
+    return axios.get(`/api/v1/phong/read/?machutro=${machutro}&maphong=${maphong}&manhatro=${manhatro}&songuoitrongphong=${songuoitrongphong}&currentpage=${currentpage}`);
 }
 
 const apiLayThongTinPhongFilter = (manhatro, machutro) => {
     return axios.get(`/api/v1/phong/read/filter?manhatro=${manhatro}&machutro=${machutro}`);
 }
 
-const apiLayThongTinNguoiThuePhong = (machutro, maphong, manhatro, tennguoithuephong) => {
-    return axios.get(`/api/v1/nguoithuephong/read/?machutro=${machutro}&maphong=${maphong}&manhatro=${manhatro}&tennguoithuephong=${tennguoithuephong}`);
+const apiLayThongTinNguoiThuePhong = (machutro, maphong, manhatro, tennguoithuephong, currentpage) => {
+    return axios.get(`/api/v1/nguoithuephong/read/?machutro=${machutro}&maphong=${maphong}&manhatro=${manhatro}&tennguoithuephong=${tennguoithuephong}&currentpage=${currentpage}`);
 }
 
 const apiLayThongTinPhongTienThuePhong = (manhatro, maphong) => {
@@ -51,8 +50,9 @@ const apiThemNguoiDungVaoPhong = (data) => {
     return axios.post("/api/v1/phong/themnguoidungvaophong", { ...data });
 }
 
-const apiLayThongTinHoaDon = (machutro, mahoadon, manhatro, maphong, matrangthaihd, ngaylaphd) => {
-    return axios.get(`/api/v1/hoadon/read?machutro=${machutro}&mahoadon=${mahoadon}&manhatro=${manhatro}&maphong=${maphong}&matrangthaihd=${matrangthaihd}&ngaylaphd=${ngaylaphd}`);
+const apiLayThongTinHoaDon = (machutro, mahoadon, manhatro, maphong, matrangthaihd, ngaylaphd, currentpage) => {
+
+    return axios.get(`/api/v1/hoadon/read?machutro=${machutro}&mahoadon=${mahoadon}&manhatro=${manhatro}&maphong=${maphong}&matrangthaihd=${matrangthaihd}&ngaylaphd=${ngaylaphd}&currentpage=${currentpage}`);
 }
 
 const apiLogin = (data) => {
@@ -74,7 +74,9 @@ const apiSuaTrangThaiHoaDon = (data) => {
 const apiLayDoanhThu = (machutro, manhatro, nam) => {
     return axios.get(`/api/v1/laydoanhthu?machutro=${machutro}&nam=${nam}&manhatro=${manhatro}`);
 }
-
+const apiLayThongTin1NhaTro = (manhatro) => {
+    return axios.get(`/api/v1/nhatro/read1?&manhatro=${manhatro}`);
+}
 export {
     apiLayThongTinNhaTro,
     apiLayThongTinNhaTroFilter,
@@ -93,7 +95,8 @@ export {
     apiXacThuc,
     apiLogOut,
     apiSuaTrangThaiHoaDon,
-    apiLayDoanhThu
+    apiLayDoanhThu,
+    apiLayThongTin1NhaTro
 }
 
 // const apiReadProduct = (page) => {

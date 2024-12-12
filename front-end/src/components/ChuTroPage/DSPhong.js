@@ -3,16 +3,19 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
-import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong } from "../../services/apiServices";
+import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong, apiLayThongTinPhongFilter } from "../../services/apiServices";
 import { useSelector } from "react-redux";
+import { useOutletContext } from "react-router-dom";
 const DSPhong = () => {
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
-
-    const [maPhongToFillTer, setMaPhongToFillTer] = useState("");
+    const { currentPage, setTotalPage } = useOutletContext();
+    const [maPhongSelected, setMaPhongSelected] = useState([]);
     const [dsNhaTro, setDsNhaTro] = useState([]);
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
+    const [dsMaPhong, setDsMaPhong] = useState([]);
     const [dsPhong, setDsPhong] = useState([]);
+    const [soNguoiTrongPhong, setSoNguoiTrongPhong] = useState("");
     const layThongTin = async () => {
         const res1 = await apiLayThongTinNhaTroFilter(machutro);
         console.log()
@@ -22,31 +25,62 @@ const DSPhong = () => {
     }
 
     const layDsPhong = async () => {
-        const res = await apiLayThongTinPhong(machutro, maPhongToFillTer, maNhaTroSelected);
+        const res = await apiLayThongTinPhong(machutro, maPhongSelected,
+            maNhaTroSelected, soNguoiTrongPhong, currentPage)
         if (res.errorCode == 0) {
             setDsPhong(res.data);
+            setTotalPage(res.totalPages);
         }
     }
+
+    const layThongTinPhongToFilter = async () => {
+        const res = await apiLayThongTinPhongFilter(maNhaTroSelected, machutro);
+
+        if (res.errorCode == 0) {
+            setDsMaPhong(res.data);
+        }
+    }
+
+    useEffect(() => {
+        layDsPhong();
+
+    }, [currentPage])
+
     useEffect(() => {
         layThongTin();
     }, [])
 
     useEffect(() => {
         layDsPhong();
-    }, [maPhongToFillTer, maNhaTroSelected])
+    }, [maPhongSelected, maNhaTroSelected, soNguoiTrongPhong])
+
+    useEffect(() => {
+        layThongTinPhongToFilter();
+    }, [maNhaTroSelected]);
     return (
         <>
             <div className="container">
                 <div className="row" style={{ height: '60px', borderBottom: '1px solid black' }}>
                     <div className="col-12 d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
-                            <form class="form-inline h-50 me-5">
-                                <input style={{ width: '180px' }}
-                                    value={maPhongToFillTer}
-                                    onChange={(event) => setMaPhongToFillTer(event.target.value)}
-                                    class="form-control "
-                                    type="search" placeholder="Tìm theo mã phòng" aria-label="Search" />
-                            </form>
+                            <div class="form-group d-flex align-items-center me-5">
+                                <label className="w-50 px-2" for="inputState">Phòng</label>
+                                <select id="inputState" class="form-control"
+                                    value={maPhongSelected}
+                                    onChange={(e) => setMaPhongSelected(e.target.value)}
+                                >
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    {dsMaPhong.map((item, index) => {
+                                        return (
+                                            <>
+                                                <option value={item.MAPHONG}>
+                                                    {item.MAPHONG}
+                                                </option>
+                                            </>
+                                        )
+                                    })}
+                                </select>
+                            </div>
                             <div class="form-group d-flex align-items-center me-5">
                                 <label className="d-block w-25" for="inputState">
                                     Nhà trọ
@@ -67,14 +101,17 @@ const DSPhong = () => {
                                     })}
                                 </select>
                             </div>
-                            {/* <div class="form-group d-flex align-items-center me-5">
+                            <div class="form-group d-flex align-items-center me-5">
                                 <label className="w-50" for="inputState">Trạng thái</label>
-                                <select id="inputState" class="form-control">
-                                    <option selected>Tất cả</option>
-                                    <option>Trống</option>
-                                    <option>Có người</option>
+                                <select
+                                    value={soNguoiTrongPhong}
+                                    onChange={(e) => setSoNguoiTrongPhong(e.target.value)}
+                                    id="inputState" class="form-control">
+                                    <option defaultValue={""} value={""}>Tất cả</option>
+                                    <option value={"0"}>Trống</option>
+                                    <option value={"1"}>Có người</option>
                                 </select>
-                            </div> */}
+                            </div>
 
                             {/* <div class="form-group d-flex align-items-center">
                                 <label className="w-50" for="inputState">Hóa đơn</label>
@@ -129,18 +166,7 @@ const DSPhong = () => {
                     })}
 
                 </div>
-                <div className="row">
-                    <div className="col-12 d-flex justify-content-center">
-                        <div>
-                            <button type="button " class="btn btn-light"><IoIosArrowBack /></button>
-                            <button type="button " class="btn btn-light">1</button>
-                            <button type="button " class="btn btn-light">2</button>
-                            <button type="button " class="btn btn-light">3</button>
-                            <button type="button " class="btn btn-light">4</button>
-                            <button type="button " class="btn btn-light"><IoIosArrowForward /></button>
-                        </div>
-                    </div>
-                </div>
+
             </div>
         </>
     )

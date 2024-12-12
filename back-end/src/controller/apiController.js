@@ -3,6 +3,8 @@ import bcrypt from "bcryptjs"
 import jwk from "jsonwebtoken"
 require('dotenv');
 
+const pageSize = 8;
+
 const createJwt = (payload) => {
     let token = null;
     try {
@@ -85,12 +87,24 @@ const layThongTinNhaTro = async (req, res) => {
     const conn = await pool.getConnection();
     try {
 
-        let tentro = req.query.tentro;
-        let machutro = req.query.machutro;
-        let sql = "CALL sp_GetNhaTroAndPhongCount(?, ?)";
-        let [results] = await conn.query(sql, [tentro, machutro]);
+        const { machutro, tentro, currentpage } = req.query;
+        const pageSizeNum = pageSize; // Default to 10 records per page
+        const pageNumberNum = parseInt(currentpage) || 1; // Default to page 1
+        // Validate input
+        const sql = `CALL LayNhaTro(?, ?, ?, ?);`;
+        const [results] = await conn.query(sql, [
+            machutro,
+            tentro || null,
+            pageSizeNum,
+            pageNumberNum,
+        ]);
+
+        // Extract the data and total pages
+        const data = results[0]; // Main query result
+        const totalPages = data.length > 0 ? data[0].TotalPages : 0;
         return res.status(200).json({
-            data: results[0],
+            data: data,
+            totalPages: totalPages,
             message: "lay thong tin tro thanh cong",
             errorCode: 0,
         })
@@ -137,17 +151,29 @@ const layThongTinNhaTroFilter = async (req, res) => {
 const layThongTinPhong = async (req, res) => {
     const conn = await pool.getConnection();
     try {
+        const {
+            maphong,
+            manhatro,
+            machutro,
+            songuoitrongphong,
+            currentpage,
+        } = req.query;
+        const sql = `CALL LayPhong(?, ?, ?, ?, ?, ?)`;
+        const [results] = await conn.query(sql, [
+            maphong || null,
+            manhatro || null,
+            machutro,
+            songuoitrongphong !== "" ? parseInt(songuoitrongphong, 10) : null,
+            pageSize,
+            parseInt(currentpage, 10),
+        ]);
 
-        let machutro = req.query.machutro;
-
-        let maphong = req.query.maphong == "" ? null : req.query.maphong;
-        let manhatro = req.query.manhatro == "" ? null : req.query.manhatro;
-        let sql = "CALL sp_GetRoomInfo(?, ?, ?)";
-
-        let [results] = await conn.query(sql, [maphong, manhatro, machutro]);
+        const data = results[0];
+        const totalPages = data.length > 0 ? data[0].TotalPages : 0;
 
         return res.status(200).json({
-            data: results[0],
+            data: data,
+            totalPages: totalPages,
             message: "lay thong tin tro cho filter thanh cong",
             errorCode: 0,
         })
@@ -168,16 +194,27 @@ const layThongTinPhong = async (req, res) => {
 const layThongTinNguoiThuePhong = async (req, res) => {
     const conn = await pool.getConnection();
     try {
-        let machutro = req.query.machutro;
-        let maphong = req.query.maphong == "" ? null : req.query.maphong;
-        let manhatro = req.query.manhatro == "" ? null : req.query.manhatro;
-        let tennguoithuephong = req.query.tennguoithuephong == "" ? null : req.query.tennguoithuephong;
-        let sql = "CALL LayDanhSachNguoiThuePhong(?, ?, ?, ?)";
+        const machutro = req.query.machutro;
+        const ten = req.query.ten || null;
+        const manhatro = req.query.manhatro || null;
+        const maphong = req.query.maphong || null;
+        const pageNumber = parseInt(req.query.currentpage, 10) || 1;
+        const sql = "CALL LayNguoiThuePhong(?, ?, ?, ?, ?, ?)";
+        const [results] = await conn.query(sql, [
+            machutro,
+            ten,
+            manhatro,
+            maphong,
+            pageSize,
+            pageNumber,
+        ]);
 
-        let [results] = await conn.query(sql, [machutro, tennguoithuephong, manhatro, maphong]);
+        const data = results[0];
+        const totalPages = data.length > 0 ? data[0].TotalPages : 0;
 
         return res.status(200).json({
-            data: results[0],
+            data: data,
+            totalPages: totalPages,
             message: "lay thong tin tro cho filter thanh cong",
             errorCode: 0,
         })
@@ -448,30 +485,45 @@ const layThongTinHoaDon = async (req, res) => {
     const conn = await pool.getConnection();
     try {
         let machutro = req.query.machutro;
-        let mahoadon = req.query.mahoadon === "" ? null : req.query.mahoadon
+        let mahoadon = req.query.mahoadon === "" ? null : req.query.mahoadon;
         let manhatro = req.query.manhatro === "" ? null : req.query.manhatro;
         let maphong = req.query.maphong === "" ? null : req.query.maphong;
         let matrangthaihd = req.query.matrangthaihd === "" ? null : req.query.matrangthaihd;
         let ngaylaphd = req.query.ngaylaphoadon === "" ? null : req.query.ngaylaphoadon;
-        let sql = `CALL layHoaDon(?,?,?,?,?,?);`;
+        let currentPage = parseInt(req.query.currentpage) || 1; // Current page
+        // Rows per page
 
-        let [results] = await conn.query(sql, [machutro, mahoadon, manhatro,
-            maphong, matrangthaihd, ngaylaphd]);
+        let sql = `CALL LayHoaDon(?,?,?,?,?,?,?,?);`;
+
+        let [results] = await conn.query(sql, [
+            machutro,
+            mahoadon,
+            manhatro,
+            maphong,
+            ngaylaphd,
+            matrangthaihd,
+            currentPage,
+            pageSize,
+        ]);
+
+        let data = results[0]; // Paginated data
+        let totalRecords = results[1][0].TotalRecords; // Total record count
+        let totalPages = Math.ceil(totalRecords / pageSize); // Calculate total pages
+
         return res.status(200).json({
-            data: results[0],
-            message: "lay thong tin hoa hon thanh cong",
+            data: data,
+            totalPages: totalPages,
+            message: "Fetched records successfully",
             errorCode: 0,
-        })
-    }
-    catch (e) {
+        });
+    } catch (e) {
         console.log(e);
-        return res.status(200).json({
+        return res.status(500).json({
             data: [],
             message: "Server error",
             errorCode: -1,
-        })
-    }
-    finally {
+        });
+    } finally {
         pool.releaseConnection(conn);
     }
 }
@@ -604,6 +656,72 @@ const LayDoanhThu = async (req, res) => {
 
 }
 
+const SuaNhaTro = async (req, res) => {
+    const conn = await pool.getConnection(); // Kết nối đến cơ sở dữ liệu
+    try {
+        // Lấy tham số từ query
+        let manhatro = req.query.manhatro;
+        let tennhatro = req.query.tennhatro;
+        let diadiem = req.query.diadiem;
+        let chieudai = req.query.chieudai;
+        let chieurong = req.query.chieurong;
+        let ngaytao = req.query.ngaytao;
+
+        // SQL query to call the stored procedure
+        const query = `
+            CALL SuaNhaTro(?, ?, ?, ?, ?, ?, ?);
+        `;
+
+        // Execute query with the parameters
+        await conn.query(query, [manhatro, tennhatro, diadiem, chieudai, chieurong, ngaytao]);
+
+        // Return the response with the result
+        return res.status(200).json({
+            data: [], // Dữ liệu từ stored procedure
+            message: "Update thành công",
+            errorCode: 0,
+        });
+    } catch (e) {
+        console.error(e); // Ghi lỗi vào console
+        // Trả về lỗi cho client
+        return res.status(500).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        });
+    } finally {
+        // Giải phóng kết nối cơ sở dữ liệu
+        conn.release();
+    }
+};
+
+const layThongTin1NhaTro = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        let manhatro = req.query.manhatro;
+        console.log(manhatro)
+        let sql = "select * from nhatro where manhatro=?";
+        let [results] = await conn.query(sql, [manhatro]);
+        return res.status(200).json({
+            data: results,
+            message: "lay thong tin 1 tro thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -622,7 +740,9 @@ module.exports = {
     xacThucNguoiDung,
     logOut,
     SuaTrangThaiHoaDon,
-    LayDoanhThu
+    LayDoanhThu,
+    SuaNhaTro,
+    layThongTin1NhaTro
 }
 
 // const ReadProduct = async (req, res) => {

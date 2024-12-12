@@ -4,7 +4,7 @@ import {
     IoIosArrowDown, IoIosArrowForward,
 } from "react-icons/io";
 import { useState, useEffect } from "react";
-import { Link, Outlet, Navigate, useNavigate } from "react-router-dom";
+import { Link, Outlet, useNavigate } from "react-router-dom";
 import { IoBarChartOutline } from "react-icons/io5";
 import { FiUser } from "react-icons/fi";
 import { BsDoorOpen } from "react-icons/bs";
@@ -18,15 +18,18 @@ import ThemNguoiDungVaoPhong from "./modals/ThemNguoiDungVaoPhong.js";
 import { useDispatch, useSelector } from "react-redux";
 import { apiLogOut, apiXacThuc } from "../../services/apiServices";
 import { toast } from "react-toastify";
-import { set } from "lodash";
 import { removeUserDataRedux } from "../../redux/action/userAction.js";
 import logo from "./logo.png"
 import { TfiReload } from "react-icons/tfi";
+import { IoIosArrowBack } from "react-icons/io";
+
 
 const TrangQuanLy = () => {
     const user = useSelector(state => state.user.data);
     const xacThuc = useSelector(state => state.user.xacThuc);
     const navigate = useNavigate();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [totalPage, setTotalPage] = useState(0);
     const checkLogin = async () => {
         if (xacThuc === true) {
             let res = await apiXacThuc();
@@ -43,7 +46,6 @@ const TrangQuanLy = () => {
             navigate("/dangnhap");
         }
     }
-
     useEffect(() => {
         checkLogin();
     }, [])
@@ -76,6 +78,24 @@ const TrangQuanLy = () => {
     const handleReload = () => {
         window.location.reload();
     }
+    const renderButtonPaginate = () => {
+        let buttons = [];
+        for (let i = 1; i <= totalPage; i++) {
+            buttons.push(
+                <button
+                    key={"btnPaGinate" + i}
+                    onClick={() => setCurrentPage(i)}
+                    type="button"
+                    className={`btn ${currentPage === i ? 'btn-primary' : 'btn-light'}`}
+                >
+                    {i}
+                </button>
+            );
+        }
+        return buttons;
+    };
+
+
     return (
         <>
             <div className="container-fluid " style={{ height: '100%' }}>
@@ -272,7 +292,26 @@ const TrangQuanLy = () => {
                         </div>
                         <div style={{ background: '#F0F4FA' }}
                             className="row">
-                            <Outlet />
+                            <Outlet context={{ currentPage, setTotalPage }} />
+                        </div>
+                        <div className="row">
+                            <div className="col-12 d-flex justify-content-center">
+                                <div>
+                                    <button onClick={() => {
+                                        if (currentPage > 1) { setCurrentPage(currentPage - 1) }
+                                    }}
+                                        type="button " class="btn btn-light"><IoIosArrowBack />
+                                    </button>
+
+                                    {renderButtonPaginate()}
+
+                                    <button onClick={() => {
+                                        if (currentPage < totalPage) { setCurrentPage(currentPage + 1) }
+                                    }}
+                                        type="button " class="btn btn-light"><IoIosArrowForward />
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -293,6 +332,7 @@ const TrangQuanLy = () => {
                 show={showThemNguoiDungVaoPhong}
                 setShow={setShowThemNguoiDungVaoPhong}
             />
+
         </>
     )
 }

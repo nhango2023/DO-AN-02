@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import Modal from 'react-bootstrap/Modal';
 import { toast } from 'react-toastify';
-import _, { set } from "lodash";
 import {
     apiLayThongTinNhaTroFilter,
     apiLayThongTinPhongChiSoCu,
@@ -12,7 +11,8 @@ import {
 import { v4 as uuidv4 } from 'uuid';
 import "./ThemHoaDon.css";
 import { useSelector } from 'react-redux';
-
+import { use } from 'react';
+import _ from 'lodash';
 const ThemHoaDon = (props) => {
 
     const { show, setShow } = props;
@@ -30,6 +30,7 @@ const ThemHoaDon = (props) => {
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
     const [maQr, setmaQr] = useState("");
     const [disableSaveBtn, setDisableSaveBtn] = useState(false);
+    const [ngayGhi, setNgayGhi] = useState("");
     const [myBank, setMyBank] = useState({
         bankId: 'vietcombank',
         accountNo: '9337405155',
@@ -50,13 +51,14 @@ const ThemHoaDon = (props) => {
     }
     ]
     const [hoaDon, setHoaDon] = useState(initHoaDon);
+
     const today = '2024-2-1';
     const dateNow = () => {
-        // var today = new Date();
-        // var dd = String(today.getDate()).padStart(2, '0');
-        // var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
-        // var yyyy = today.getFullYear();
-        // today = yyyy+"-"+mm+"-"+dd;
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+        var yyyy = today.getFullYear();
+        today = yyyy + "-" + mm + "-" + dd;
 
         return today;
     }
@@ -103,27 +105,25 @@ const ThemHoaDon = (props) => {
     }
     const LayThongTinChiSoCu = async () => {
 
-        const res = await apiLayThongTinPhongChiSoCu(maNhaTroSelected, maPhongSelected, today);
-        console.log(res);
-        console.log(maNhaTroSelected);
-        console.log(maPhongSelected);
+        const res = await apiLayThongTinPhongChiSoCu(maNhaTroSelected, maPhongSelected, ngayGhi);
         if (res.errorCode == 0) {
             setChiSoCu(res.data);
         }
     }
     useEffect(() => {
         if (show === true) {
-
+            LayThongTinPhongToFilter();
             LayThongTinNhaTroToFilter();
         }
-    }, [show])
-    useEffect(() => {
-        if (show === true) {
-            LayThongTinPhongToFilter();
+        if (maNhaTroSelected != "" && maPhongSelected != "" && ngayGhi != "") {
             LayThongTinChiSoCu();
             LayThongTinTienThuePhong();
+        } else if (maNhaTroSelected == "" || maPhongSelected == "" || ngayGhi == "") {
+            setChiSoCu([]);
+            setDichVuThuePhong({});
         }
-    }, [maNhaTroSelected, maPhongSelected, show])
+
+    }, [maNhaTroSelected, maPhongSelected, show, ngayGhi])
     const handleOnChangeInput = (index, value) => {
         const temp = _.cloneDeep(hoaDon);
         temp[index].chisomoi = value;
@@ -137,14 +137,15 @@ const ThemHoaDon = (props) => {
 
     const handleOnSave = async () => {
         let data = buildDataToSave();
-        let res = await apiTaoHoaDon(data);
-        if (res.errorCode == 0) {
-            toast.success(res.message);
-            setDisableSaveBtn(true);
-        }
-        else {
-            toast.error(res.message);
-        }
+        console.log(data);
+        // let res = await apiTaoHoaDon(data);
+        // if (res.errorCode == 0) {
+        //     toast.success(res.message);
+        //     setDisableSaveBtn(true);
+        // }
+        // else {
+        //     toast.error(res.message);
+        // }
 
         const linkQr = `https://img.vietqr.io/image/${myBank.bankId}-${myBank.accountNo}-
         qr_only.png?amount=${data[2].tongtien}&addInfo=
@@ -169,7 +170,7 @@ const ThemHoaDon = (props) => {
             mahd: mahd,
             manhatro: maNhaTroSelected,
             maphong: maPhongSelected,
-            ngayghi: today
+            ngayghi: ngayGhi
         }
         let dataToSave = _.cloneDeep(hoaDon);
         dataToSave.push(thongTinBoSung);
@@ -179,10 +180,15 @@ const ThemHoaDon = (props) => {
     const initThemHoaDon = () => {
         setmaQr("");
         setHoaDon(initHoaDon);
+        setMaPhongSelected("");
+        setMaNhaTroSelected("");
+        setChiSoCu([]);
+        setDichVuThuePhong({});
+        setNgayGhi("");
     }
 
     useEffect(() => {
-        if (show === false) {
+        if (show == false) {
             setHoaDon(initHoaDon);
         }
         else {
@@ -204,7 +210,7 @@ const ThemHoaDon = (props) => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    Lập hóa đơn
+                    Lập hóa đơn <sup>Ngày lập lần cuối: {chiSoCu[0]?.NGAYGHI}</sup>
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
@@ -256,6 +262,18 @@ const ThemHoaDon = (props) => {
                                 )
                             })}
                         </select>
+                    </div>
+                    <div className="form-group">
+                        <label htmlFor="ngayvaophong">Ngày lập</label>
+                        <input
+                            type="date"
+                            className="form-control"
+                            id="ngaytao"
+                            name="ngaytao"
+                            value={ngayGhi}
+                            onChange={(e) => setNgayGhi(e.target.value)}
+                            required
+                        />
                     </div>
                 </div>
                 <table style={{ width: "100%", borderCollapse: 'collapse', marginTop: '20px' }}>

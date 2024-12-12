@@ -22,7 +22,7 @@ const ThemPhong = (props) => {
         mota: '',
         chieudai: '',
         chieurong: '',
-        ngaytao: today,
+        ngaytao: '',
         madv1: '',
         giadv1: '',
         madv2: '',
@@ -85,7 +85,7 @@ const ThemPhong = (props) => {
         if (res.errorCode === 0) {
             if (res.data === 1) {
                 toast.success("Tạo phòng thành công");
-                setPhong(initPhong);
+                window.location.reload();
             }
             else {
                 toast.error("Mã phòng đã tồn tại!!");
@@ -111,12 +111,11 @@ const ThemPhong = (props) => {
         >
             <Modal.Header closeButton>
                 <Modal.Title id="contained-modal-title-vcenter">
-                    Thêm nhà trọ
+                    Thêm phòng
                 </Modal.Title>
             </Modal.Header>
             <Modal.Body>
                 <div className="container mt-5">
-
                     <form >
                         <div className="form-group">
                             <label htmlFor="manhatro">Tên Nhà Trọ</label>
@@ -222,6 +221,18 @@ const ThemPhong = (props) => {
                                 value={phong.giadv3}
                                 onChange={handleChange}
                                 min={"0"}
+                            />
+                        </div>
+                        <div className="form-group">
+                            <label htmlFor="ngayvaophong">Ngày tạo</label>
+                            <input
+                                type="date"
+                                className="form-control"
+                                id="ngaytao"
+                                name="ngaytao"
+                                value={phong.ngaytao}
+                                onChange={handleChange}
+                                required
                             />
                         </div>
                     </form>
