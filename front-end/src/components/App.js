@@ -11,6 +11,7 @@ import TongDoanhThu from './ChuTroPage/TongDoanhThu.js';
 import TrangQuanLyNguoiThue from './NguoiThuePage/TrangQuanLy.js';
 import TrangQuanLyChuTro from "./ChuTroPage/TrangQuanLy.js"
 
+
 const App = () => {
 
     return (

@@ -34,6 +34,10 @@ const DSNhaTro = () => {
 
     const [showSuaHoaDon, setShowSuaHoaDon] = useState(false);
     const [maNhaTro, setMaNhaTro] = useState("");
+
+    const funcTest = () => {
+
+    }
     return (
         <>
             <div className="container">
@@ -97,6 +101,7 @@ const DSNhaTro = () => {
                 show={showSuaHoaDon}
                 setShow={setShowSuaHoaDon}
                 manhatro={maNhaTro}
+                refreshPage={layThongTinNhaTro}
             />
         </>
     )

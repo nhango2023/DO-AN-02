@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pie Chart with Legend and Label</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .chart-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+
+        .chart-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .pie-chart {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+        }
+
+        .slice {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            clip-path: polygon(50% 50%, 100% 50%, 100% 0%, 50% 0%);
+            transform-origin: 50% 50%;
+        }
+
+        /* Individual slices */
+        .slice-1 {
+            background-color: #76c7c0;
+            /* Green */
+            transform: rotate(0deg);
+        }
+
+        .slice-2 {
+            background-color: #4caf50;
+            /* Dark Green */
+            transform: rotate(72deg);
+        }
+
+        .slice-3 {
+            background-color: #ff9800;
+            /* Orange */
+            transform: rotate(144deg);
+        }
+
+        .slice-4 {
+            background-color: #f44336;
+            /* Red */
+            transform: rotate(216deg);
+        }
+
+        .slice-5 {
+            background-color: #9c27b0;
+            /* Purple */
+            transform: rotate(288deg);
+        }
+
+        .chart-label {
+            margin-top: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+
+        /* Legend styling */
+        .legend {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 14px;
+        }
+
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chart-wrapper">
+        <!-- Pie Chart -->
+        <div class="chart-container">
+            <div class="pie-chart">
+                <div class="slice slice-1"></div>
+                <div class="slice slice-2"></div>
+                <div class="slice slice-3"></div>
+                <div class="slice slice-4"></div>
+                <div class="slice slice-5"></div>
+            </div>
+            <div class="chart-label">Year: 2023</div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #76c7c0;"></div>
+                <div>Green: 20%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #4caf50;"></div>
+                <div>Dark Green: 30%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #ff9800;"></div>
+                <div>Orange: 25%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #f44336;"></div>
+                <div>Red: 15%</div>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background-color: #9c27b0;"></div>
+                <div>Purple: 10%</div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

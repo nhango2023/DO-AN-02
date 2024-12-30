@@ -660,20 +660,14 @@ const SuaNhaTro = async (req, res) => {
     const conn = await pool.getConnection(); // Kết nối đến cơ sở dữ liệu
     try {
         // Lấy tham số từ query
-        let manhatro = req.query.manhatro;
-        let tennhatro = req.query.tennhatro;
-        let diadiem = req.query.diadiem;
-        let chieudai = req.query.chieudai;
-        let chieurong = req.query.chieurong;
-        let ngaytao = req.query.ngaytao;
-
         // SQL query to call the stored procedure
         const query = `
-            CALL SuaNhaTro(?, ?, ?, ?, ?, ?, ?);
+            CALL UpdateNhaTro(?, ?, ?, ?, ?, ?);
         `;
-
+        let data = req.body;
         // Execute query with the parameters
-        await conn.query(query, [manhatro, tennhatro, diadiem, chieudai, chieurong, ngaytao]);
+        await conn.query(query, [data.manhatro, data.tennhatro,
+        data.diadiem, data.chieudai, data.chieurong, data.ngaytao]);
 
         // Return the response with the result
         return res.status(200).json({
@@ -695,16 +689,15 @@ const SuaNhaTro = async (req, res) => {
     }
 };
 
-const layThongTin1NhaTro = async (req, res) => {
+const layThongTinNhaTroDeSua = async (req, res) => {
     const conn = await pool.getConnection();
     try {
 
         let manhatro = req.query.manhatro;
-        console.log(manhatro)
         let sql = "select * from nhatro where manhatro=?";
         let [results] = await conn.query(sql, [manhatro]);
         return res.status(200).json({
-            data: results,
+            data: results[0],
             message: "lay thong tin 1 tro thanh cong",
             errorCode: 0,
         })
@@ -722,6 +715,173 @@ const layThongTin1NhaTro = async (req, res) => {
     }
 }
 
+const layThongTinPhongDeSua = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const { manhatro, maphong } = req.query;
+
+        let sql = "CALL layphongdesua(?, ?)";
+        let [results] = await conn.query(sql, [manhatro, maphong]);
+        return res.status(200).json({
+            data: results[0][0],
+            message: "lay thong tin thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const layThongTinDichVuPhongDeSua = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const { manhatro, maphong } = req.query;
+        let sql = "CALL laydichvuphongdesua(?, ?)";
+        let [results] = await conn.query(sql, [manhatro, maphong]);
+        return res.status(200).json({
+            data: results[0],
+            message: "lay thong tin thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const SuaPhong = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        let { maphongcu, manhatrocu, maphongmoi, manhatromoi,
+            chieudai, chieurong, mota, ngaytao, madv1, giadv1,
+            madv2, giadv2, madv3, giadv3
+        } = req.body;
+        let sql = `CALL CapNhatPhong(
+        ?,         -- p_MaPhongCu
+        ?,        -- p_MaNhaTroCu
+        ?,         -- p_MaPhongMoi
+        ?,        -- p_MaNhaTroMoi
+        ?,            -- p_ChiềuDai
+        ?,            -- p_ChiềuRong
+        ?, -- p_MoTa
+        ?,   -- p_NgayTao
+        ?,         -- p_Madv1
+        ?,         -- p_Giadv1
+        ?,         -- p_Madv2
+        ?,         -- p_Giadv2
+        ?,         -- p_Madv3
+        ?          -- p_Giadv3
+    );
+`;
+        let [results] = await conn.query(sql, [
+            maphongcu,
+            manhatrocu,
+            maphongmoi,
+            manhatromoi,
+            chieudai,
+            chieurong,
+            mota,
+            ngaytao,
+            madv1,
+            giadv1,
+            madv2,
+            giadv2,
+            madv3,
+            giadv3
+        ]);
+
+        let message = results[0][0].Message;
+        let result = results[0][0].Status;
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const layThongTinNguoiDungDeSua = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const { idnguoidung } = req.query;
+        let sql = "CALL LayNguoiDungDeSua(?)";
+        let [results] = await conn.query(sql, [idnguoidung]);
+        return res.status(200).json({
+            data: results[0][0],
+            message: "lay thong tin thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const SuaNguoiDung = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const { idnguoidung, hoten, sodienthoai, cccd } = req.body;
+        let sql = "call SuaNguoiDung(?,?,?,?)";
+        let [results] = await conn.query(sql, [idnguoidung, hoten, sodienthoai, cccd]);
+        return res.status(200).json({
+            data: "",
+            message: "Sua thanh cong",
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -742,7 +902,12 @@ module.exports = {
     SuaTrangThaiHoaDon,
     LayDoanhThu,
     SuaNhaTro,
-    layThongTin1NhaTro
+    layThongTinNhaTroDeSua,
+    layThongTinPhongDeSua,
+    layThongTinDichVuPhongDeSua,
+    SuaPhong,
+    layThongTinNguoiDungDeSua,
+    SuaNguoiDung
 }
 
 // const ReadProduct = async (req, res) => {

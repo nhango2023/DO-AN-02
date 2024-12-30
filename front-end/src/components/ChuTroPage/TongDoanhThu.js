@@ -10,6 +10,7 @@ const TongDoanhThu = () => {
     const [tongDoanhThu, setTongDoanhThu] = useState(0);
     const [namSelected, setNamSelected] = useState("");
     const [dsNhaTro, setDsNhaTro] = useState([]);
+    const [dataForPieChart, setDaTaForPieChart] = useState([]);
     const [maNhaTroSelected, setMaNhaTroSelected] = useState("");
     const yearNow = () => {
         const today = new Date();
@@ -20,12 +21,38 @@ const TongDoanhThu = () => {
         let res = await apiLayDoanhThu(machutro, maNhaTroSelected, namSelected);
         if (res.errorCode == 0) {
             setDsDoanhThu(res.data);
+            const groupedData = transformedData(res.data);
+            console.log(groupedData);
+            setDaTaForPieChart(groupedData);
             let tongdoanhthu = 0;
             res.data.forEach(element => {
                 tongdoanhthu = tongdoanhthu + element.TongDoanhThu;
             });
             setTongDoanhThu(tongdoanhthu);
         }
+    }
+
+    function transformedData(data) {
+        const groupedData = data.reduce((acc, item) => {
+            const { Nam, Thang, TongDoanhThu } = item;
+
+            // Find the year in the accumulator or create a new one
+            let yearEntry = acc.find(entry => entry.Nam === Nam);
+            if (!yearEntry) {
+                yearEntry = { Nam, data: [], TongDoanhThu: 0 };
+                acc.push(yearEntry);
+            }
+
+            // Add the month's data
+            yearEntry.data.push({ Thang, TongDoanhThu });
+
+            // Update the total revenue for the year
+            yearEntry.TongDoanhThu += TongDoanhThu;
+
+            return acc;
+        }, []);
+
+        return groupedData;
     }
 
     const layThongTinNhaTroToFilter = async () => {
@@ -53,9 +80,23 @@ const TongDoanhThu = () => {
             return value; // Return as-is for smaller values
         }
     }
+    const colors = [
+        "#76c7c0", // Greenish-blue
+        "#4caf50", // Green
+        "#ff9800", // Orange
+        "#f44336", // Red
+        "#9c27b0", // Purple
+        "#2196f3", // Blue
+        "#ffc107", // Amber
+        "#8bc34a", // Light Green
+        "#e91e63", // Pink
+        "#607d8b", // Blue Gray
+        "#795548", // Brown
+        "#00bcd4"  // Cyan
+    ];
     return (
         <>
-            <div className="container-fluid">
+            <div className="container-fluid ">
                 <div className="row" style={{ height: '60px', borderBottom: '1px solid black' }}>
                     <div className="col-12 d-flex justify-content-between align-items-center">
                         <div className="d-flex align-items-center">
@@ -97,7 +138,7 @@ const TongDoanhThu = () => {
                         </div>
                     </div>
                 </div>
-                <div className="row mt-2" style={{ height: '610px' }}>
+                <div className="row mt-2 d-none" style={{ height: '610px' }}>
                     <div className="col-12">
                         <div className="chart-container">
                             <h4>Doanh thu</h4>
@@ -142,7 +183,74 @@ const TongDoanhThu = () => {
                     </div>
 
                 </div>
+                <div className="row mt-2 ">
+                    <div className="d-flex justify-content-center">
+                        {dataForPieChart.map((item, index) => {
+                            return (
+                                <>
+                                    <div className="d-flex flex-column justify-content-center"
+                                        style={{ textAlign: 'center' }}>
+                                        <div className="d-flex justify-content-center"
+                                            style={{ gap: '60px' }}>
+                                            <div class="chart-wrapper">
+
+                                                <div class="chart-container">
+
+                                                    <div class="pie-chart">
+                                                        {item.data.map((value, index) => {
+                                                            const rotation = (360 * value.TongDoanhThu) / item.TongDoanhThu;
+                                                            let degree = 0;
+                                                            return (
+                                                                <>
+                                                                    <div style={{ backgroundColor: `${colors[index]}`, transform: `rotate(${rotation}deg)` }}
+                                                                        class="slice"></div>
+                                                                </>
+                                                            )
+                                                        })}
+
+                                                        <div class="slice "></div>
+                                                        <div class="slice slice-3"></div>
+                                                        <div class="slice slice-4"></div>
+                                                        <div class="slice slice-5"></div>
+                                                    </div>
+
+                                                </div>
+                                                <div class="legend">
+                                                    <div class="legend-item">
+                                                        <div class="legend-color" style={{ backgroundColor: "#76c7c0" }}></div>
+                                                        <div>Green: 20%</div>
+                                                    </div>
+                                                    <div class="legend-item">
+                                                        <div class="legend-color" style={{ backgroundColor: "#4caf50" }}></div>
+                                                        <div>Dark Green: 30%</div>
+                                                    </div>
+                                                    <div class="legend-item">
+                                                        <div class="legend-color" style={{ backgroundColor: "#ff9800" }}></div>
+                                                        <div>Orange: 25%</div>
+                                                    </div>
+                                                    <div class="legend-item">
+                                                        <div class="legend-color" style={{ backgroundColor: "#f44336" }}></div>
+                                                        <div>Red: 15%</div>
+                                                    </div>
+                                                    <div class="legend-item">
+                                                        <div class="legend-color" style={{ backgroundColor: "#9c27b0" }}></div>
+                                                        <div>Purple: 10%</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                        </div>
+                                        <div class="chart-label">Year: 2023</div>
+                                    </div>
+                                </>
+                            )
+                        })}
+
+
+                    </div>
+                </div>
             </div>
+
         </>
     )
 }

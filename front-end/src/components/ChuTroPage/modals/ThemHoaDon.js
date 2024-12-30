@@ -18,8 +18,7 @@ const ThemHoaDon = (props) => {
     const { show, setShow } = props;
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
-    const [chiSoMoiDv1, setChiSoMoiDv1] = useState("");
-    const [chiSoMoiDv2, setChiSoMoiDv2] = useState("");
+
     // const [maNhaTro, setmaNhaTro] = useState("");
     // const [maPhong, setMaPhong] = useState("");
     const [chiSoCu, setChiSoCu] = useState([]);
@@ -279,13 +278,13 @@ const ThemHoaDon = (props) => {
                 <table style={{ width: "100%", borderCollapse: 'collapse', marginTop: '20px' }}>
                     <thead>
                         <tr style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Tên dịch vụ</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Chỉ số cũ</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Chỉ số mới</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Số lượng đã sử dụng</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Đơn giá</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Đơn vị tính</th>
-                            <th style={{ padding: '10px', textAlign: 'left', backgroundColor: '#f4f4f4' }}>Thành tiền</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Tên dịch vụ</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Chỉ số cũ</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Chỉ số mới</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Số lượng đã sử dụng</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Đơn giá</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Đơn vị tính</th>
+                            <th style={{ padding: '10px', textAlign: 'center', backgroundColor: '#f4f4f4' }}>Thành tiền</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -294,9 +293,9 @@ const ThemHoaDon = (props) => {
                             return (
                                 <>
                                     <tr>
-                                        <td style={{ padding: '10px' }}>{item.tendichvu}</td>
-                                        <td style={{ padding: '10px' }}>{item.CHISOCU}</td>
-                                        <td style={{ padding: '10px' }}>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.tendichvu}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.CHISOCU}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>
                                             <input min={"100"} type="text" class="form-control w-75"
                                                 placeholder="Chỉ số mới" aria-label="Username"
                                                 aria-describedby="basic-addon1"
@@ -305,14 +304,15 @@ const ThemHoaDon = (props) => {
                                                 onChange={(e) => handleOnChangeInput(index, e.target.value)}
                                                 onBlur={(e) => handleBuildHoaDon(index, item.CHISOCU, item.gia, item.madichvu)} />
                                         </td>
-                                        <td style={{ padding: '10px' }}>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>
                                             {hoaDon[index].soluongdasudung > 0 ?
                                                 hoaDon[index].soluongdasudung : 0
                                             }
                                         </td>
-                                        <td style={{ padding: '10px' }}>{(+item.gia).toLocaleString()}</td>
-                                        <td style={{ padding: '10px' }}>{item.DONVITINH}</td>
-                                        <td style={{ padding: '10px' }}>{(+hoaDon[index].thanhtien).toLocaleString()}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{(+item.gia).toLocaleString()}</td>
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{item.DONVITINH}</td>
+
+                                        <td style={{ padding: '10px', textAlign: 'center' }}>{(+hoaDon[index].thanhtien).toLocaleString()}</td>
                                     </tr>
                                 </>
                             )
@@ -320,13 +320,13 @@ const ThemHoaDon = (props) => {
 
 
                         <tr>
-                            <td style={{ padding: '10px' }}>{dichVuThuePhong && dichVuThuePhong.tendichvu ? dichVuThuePhong.tendichvu : ""}</td>
+                            <td style={{ padding: '10px', textAlign: 'center' }}>{dichVuThuePhong && dichVuThuePhong.tendichvu ? dichVuThuePhong.tendichvu : ""}</td>
                             <td style={{ padding: '10px' }}></td>
                             <td style={{ padding: '10px' }}></td>
-                            <td style={{ padding: '10px' }}></td>
-                            <td style={{ padding: '10px' }}></td>
-                            <td style={{ padding: '10px' }}>Phòng</td>
+                            <td style={{ padding: '10px', textAlign: 'center' }}>1</td>
                             <td style={{ padding: '10px' }}>{(+dichVuThuePhong?.gia || 0).toLocaleString()}</td>
+                            <td style={{ padding: '10px', textAlign: 'center' }}>Phòng</td>
+                            <td style={{ padding: '10px', textAlign: 'center' }}>{(+dichVuThuePhong?.gia || 0).toLocaleString()}</td>
                         </tr>
                         <tr>
                             <td style={{ padding: '10px' }}></td>

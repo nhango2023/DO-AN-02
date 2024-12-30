@@ -9,6 +9,7 @@ import {
 } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
+import SuaNguoiThuePhong from "./modals/SuaNguoiThuePhong";
 
 
 const DSNguoiThuePhong = () => {
@@ -63,6 +64,8 @@ const DSNguoiThuePhong = () => {
     useEffect(() => {
         layDsNguoiThuePhong();
     }, [currentPage])
+    const [idNguoiDung, setIdNguoiDung] = useState("");
+    const [showSuaNguoiThuePhong, setShowSuaNguoiThuePhong] = useState(false);
     return (
         <>
             <div className="container">
@@ -130,7 +133,8 @@ const DSNguoiThuePhong = () => {
                                         <p className="mb-1 px-3">{item.tennhatro}</p>
                                         <div className="d-flex justify-content-center">
                                             <div>
-                                                <button type="button" class="mx-3 btn btn-info">
+                                                <button onClick={() => { setShowSuaNguoiThuePhong(true); setIdNguoiDung(item.IDNGUOIDUNG) }}
+                                                    type="button" class="mx-3 btn btn-info">
                                                     <FaRegEdit /></button>
                                                 <button type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
@@ -140,7 +144,7 @@ const DSNguoiThuePhong = () => {
                                             style={{ borderTop: "1px solid black" }}>
                                             <div className="px-3"
                                                 style={{ borderRight: "1px solid black", flex: '1' }}>
-                                                <span className="d-block">Ngày bắt đầu</span>
+                                                <span className="d-block">Ngày thuê</span>
                                                 <span className="d-block">{item.NGAYVAOPHONG}</span>
 
                                             </div>
@@ -160,6 +164,12 @@ const DSNguoiThuePhong = () => {
                 </div>
 
             </div>
+            <SuaNguoiThuePhong
+                show={showSuaNguoiThuePhong}
+                setShow={setShowSuaNguoiThuePhong}
+                refreshPage={layDsNguoiThuePhong}
+                idnguoidung={idNguoiDung}
+            />
         </>
     )
 }

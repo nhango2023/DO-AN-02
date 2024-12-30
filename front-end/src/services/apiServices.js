@@ -75,7 +75,31 @@ const apiLayDoanhThu = (machutro, manhatro, nam) => {
     return axios.get(`/api/v1/laydoanhthu?machutro=${machutro}&nam=${nam}&manhatro=${manhatro}`);
 }
 const apiLayThongTin1NhaTro = (manhatro) => {
-    return axios.get(`/api/v1/nhatro/read1?&manhatro=${manhatro}`);
+    return axios.get(`/api/v1/nhatro/laythongtinnhatrodesua?&manhatro=${manhatro}`);
+}
+const apiSuaNhaTro = (data) => {
+    return axios.put("/api/v1/nhatro/sua", { ...data });
+}
+
+
+const apiLayThongTinPhongDeSua = (manhatro, maphong) => {
+    return axios.get(`/api/v1/phong/laythongtinphongdesua?manhatro=${manhatro}&maphong=${maphong}`);
+}
+
+
+const apiLayThongTinDichVuPhongDeSua = (manhatro, maphong) => {
+    return axios.get(`/api/v1/dichvuphong/laythongtindichvuphongdesua?manhatro=${manhatro}&maphong=${maphong}`);
+}
+
+const apiSuaPhong = (data) => {
+    return axios.put("/api/v1/phong/sua", { ...data });
+}
+
+const apiLayThongTinNguoiDungDeSua = (idnguoidung) => {
+    return axios.get(`/api/v1/nguoidung/laythongtinnguoidungdesua?idnguoidung=${idnguoidung}`);
+}
+const apiSuaNguoiDung = (data) => {
+    return axios.put("/api/v1/nguoidung/sua", { ...data });
 }
 export {
     apiLayThongTinNhaTro,
@@ -96,7 +120,13 @@ export {
     apiLogOut,
     apiSuaTrangThaiHoaDon,
     apiLayDoanhThu,
-    apiLayThongTin1NhaTro
+    apiLayThongTin1NhaTro,
+    apiSuaNhaTro,
+    apiLayThongTinPhongDeSua,
+    apiLayThongTinDichVuPhongDeSua,
+    apiSuaPhong,
+    apiLayThongTinNguoiDungDeSua,
+    apiSuaNguoiDung
 }
 
 // const apiReadProduct = (page) => {

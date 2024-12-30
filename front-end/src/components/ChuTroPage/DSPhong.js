@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong, apiLayThongTinPhongFilter } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
+import SuaPhong from "./modals/SuaPhong";
 const DSPhong = () => {
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
@@ -27,6 +28,7 @@ const DSPhong = () => {
     const layDsPhong = async () => {
         const res = await apiLayThongTinPhong(machutro, maPhongSelected,
             maNhaTroSelected, soNguoiTrongPhong, currentPage)
+
         if (res.errorCode == 0) {
             setDsPhong(res.data);
             setTotalPage(res.totalPages);
@@ -57,6 +59,10 @@ const DSPhong = () => {
     useEffect(() => {
         layThongTinPhongToFilter();
     }, [maNhaTroSelected]);
+
+    const [showSuaPhong, setShowSuaPhong] = useState(false);
+    const [manhatro, setMaNhaTro] = useState("");
+    const [maphong, setMaPhong] = useState("");
     return (
         <>
             <div className="container">
@@ -140,8 +146,11 @@ const DSPhong = () => {
                                         <p className="mb-1 px-3">Diện tích: {+item.CHIEUDAI * +item.CHIEURONG}m<sup>2</sup></p>
                                         <div className="d-flex justify-content-center">
                                             <div>
-                                                <button type="button" class="mx-3 btn btn-info">
-                                                    <FaRegEdit /></button>
+                                                <button
+                                                    onClick={() => { setMaNhaTro(item.MANHATRO); setMaPhong(item.MAPHONG); setShowSuaPhong(true) }}
+                                                    type="button" class="mx-3 btn btn-info">
+                                                    <FaRegEdit
+                                                    /></button>
                                                 <button type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
                                             </div>
@@ -168,6 +177,14 @@ const DSPhong = () => {
                 </div>
 
             </div>
+            <SuaPhong
+                show={showSuaPhong}
+                setShow={setShowSuaPhong}
+                machutro={machutro}
+                manhatro={manhatro}
+                maphong={maphong}
+                refreshPage={layDsPhong}
+            />
         </>
     )
 }
