@@ -196,51 +196,51 @@ const TongDoanhThu = () => {
 
                                                 <div class="chart-container">
 
-                                                    <div class="pie-chart">
-                                                        {item.data.map((value, index) => {
-                                                            const rotation = (360 * value.TongDoanhThu) / item.TongDoanhThu;
-                                                            let degree = 0;
-                                                            return (
-                                                                <>
-                                                                    <div style={{ backgroundColor: `${colors[index]}`, transform: `rotate(${rotation}deg)` }}
-                                                                        class="slice"></div>
-                                                                </>
-                                                            )
-                                                        })}
+                                                    <div className="pie-chart">
+                                                        {(() => {
+                                                            let degree = 0; // Initialize degree outside the map function for cumulative updates
+                                                            return item.data.map((value, index) => {
+                                                                const rotation = (360 * value.TongDoanhThu) / item.TongDoanhThu;
 
-                                                        <div class="slice "></div>
-                                                        <div class="slice slice-3"></div>
-                                                        <div class="slice slice-4"></div>
-                                                        <div class="slice slice-5"></div>
+
+                                                                const currentRotation = degree; // Save the current degree for this slice
+                                                                degree += rotation; // Update the degree for the next slice
+
+                                                                return (
+                                                                    <div
+                                                                        key={index} // Add a unique key for each element
+                                                                        style={{
+                                                                            backgroundColor: `${colors[index]}`,
+                                                                            transform: `rotate(${currentRotation}deg)`,
+                                                                        }}
+                                                                        className="slice"
+                                                                    ></div>
+                                                                );
+                                                            });
+                                                        })()}
                                                     </div>
+
 
                                                 </div>
                                                 <div class="legend">
-                                                    <div class="legend-item">
-                                                        <div class="legend-color" style={{ backgroundColor: "#76c7c0" }}></div>
-                                                        <div>Green: 20%</div>
-                                                    </div>
-                                                    <div class="legend-item">
-                                                        <div class="legend-color" style={{ backgroundColor: "#4caf50" }}></div>
-                                                        <div>Dark Green: 30%</div>
-                                                    </div>
-                                                    <div class="legend-item">
-                                                        <div class="legend-color" style={{ backgroundColor: "#ff9800" }}></div>
-                                                        <div>Orange: 25%</div>
-                                                    </div>
-                                                    <div class="legend-item">
-                                                        <div class="legend-color" style={{ backgroundColor: "#f44336" }}></div>
-                                                        <div>Red: 15%</div>
-                                                    </div>
-                                                    <div class="legend-item">
-                                                        <div class="legend-color" style={{ backgroundColor: "#9c27b0" }}></div>
-                                                        <div>Purple: 10%</div>
-                                                    </div>
+                                                    {item.data.map((value, index) => {
+                                                        return (
+                                                            <>
+                                                                <div key={index}
+                                                                    class="legend-item">
+                                                                    <div class="legend-color" style={{ backgroundColor: `${colors[index]}` }}></div>
+                                                                    <div>Tháng: {value.Thang}---{(+value.TongDoanhThu).toLocaleString()}</div>
+                                                                </div>
+                                                            </>
+                                                        )
+                                                    })}
+
+
                                                 </div>
                                             </div>
 
                                         </div>
-                                        <div class="chart-label">Year: 2023</div>
+                                        <div class="chart-label">Year: {item.Nam}</div>
                                     </div>
                                 </>
                             )

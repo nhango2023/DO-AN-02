@@ -136,24 +136,24 @@ const ThemHoaDon = (props) => {
 
     const handleOnSave = async () => {
         let data = buildDataToSave();
-        console.log(data);
-        // let res = await apiTaoHoaDon(data);
-        // if (res.errorCode == 0) {
-        //     toast.success(res.message);
-        //     setDisableSaveBtn(true);
-        // }
-        // else {
-        //     toast.error(res.message);
-        // }
 
-        const linkQr = `https://img.vietqr.io/image/${myBank.bankId}-${myBank.accountNo}-
-        qr_only.png?amount=${data[2].tongtien}&addInfo=
-        ${'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi}
-        &accountName=${myBank.accountName}`
-        setmaQr(linkQr);
-        let temp = _.cloneDeep(myBank);
-        temp.noidungchuyenkhoan = 'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi;
-        setMyBank(temp);
+        let res = await apiTaoHoaDon(data);
+        if (res.errorCode == 0) {
+            toast.success(res.message);
+            setShow(false);
+        }
+        else {
+            toast.error(res.message);
+        }
+
+        // const linkQr = `https://img.vietqr.io/image/${myBank.bankId}-${myBank.accountNo}-
+        // qr_only.png?amount=${data[2].tongtien}&addInfo=
+        // ${'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi}
+        // &accountName=${myBank.accountName}`
+        // setmaQr(linkQr);
+        // let temp = _.cloneDeep(myBank);
+        // temp.noidungchuyenkhoan = 'thanh toan tien phong ' + data[2].maphong + " " + data[2].ngayghi;
+        // setMyBank(temp);
         // window.print();
     }
     const taoMaHoaDon = () => {
