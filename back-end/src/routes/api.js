@@ -40,8 +40,12 @@ const initApiRoutes = (app) => {
     router.get("/dichvuphong/laythongtindichvuphongdesua", apiController.layThongTinDichVuPhongDeSua);
     router.put("/phong/sua", apiController.SuaPhong);
     router.get("/nguoidung/laythongtinnguoidungdesua", apiController.layThongTinNguoiDungDeSua);
-
     router.put("/nguoidung/sua", apiController.SuaNguoiDung);
+    router.delete("/nguoidung/xoa", apiController.XoaNguoiDung);
+    router.delete("/hoadon/xoa", apiController.XoaHoaDon);
+    router.delete("/phong/xoa", apiController.XoaPhong);
+    router.delete("/nhatro/xoa", apiController.XoaNhaTro);
+
     return app.use("/api/v1/", router);
 }
 

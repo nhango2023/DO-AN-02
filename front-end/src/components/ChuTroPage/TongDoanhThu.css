@@ -82,7 +82,7 @@
     }
 }
 
-.chart-wrapper {
+/* .chart-wrapper {
     display: flex;
     align-items: center;
     gap: 30px;
@@ -120,7 +120,7 @@
 /* Individual slices */
 
 
-/* Legend styling */
+/* 
 .legend {
     display: flex;
     flex-direction: column;
@@ -138,4 +138,4 @@
     width: 20px;
     height: 20px;
     border-radius: 50%;
-}
+} */

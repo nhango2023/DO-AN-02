@@ -101,6 +101,18 @@ const apiLayThongTinNguoiDungDeSua = (idnguoidung) => {
 const apiSuaNguoiDung = (data) => {
     return axios.put("/api/v1/nguoidung/sua", { ...data });
 }
+const apiXoaNguoiDung = (idnguoidung) => {
+    return axios.delete(`/api/v1/nguoidung/xoa?idnguoidung=${idnguoidung}`);
+}
+const apiXoaHoaDon = (mahoadon) => {
+    return axios.delete(`/api/v1/hoadon/xoa?mahoadon=${mahoadon}`);
+}
+const apiXoaPhong = (manhatro, maphong) => {
+    return axios.delete(`/api/v1/phong/xoa?manhatro=${manhatro}&maphong=${maphong}`);
+}
+const apiXoaNhaTro = (manhatro) => {
+    return axios.delete(`/api/v1/nhatro/xoa?manhatro=${manhatro}`);
+}
 export {
     apiLayThongTinNhaTro,
     apiLayThongTinNhaTroFilter,
@@ -126,7 +138,11 @@ export {
     apiLayThongTinDichVuPhongDeSua,
     apiSuaPhong,
     apiLayThongTinNguoiDungDeSua,
-    apiSuaNguoiDung
+    apiSuaNguoiDung,
+    apiXoaNguoiDung,
+    apiXoaHoaDon,
+    apiXoaPhong,
+    apiXoaNhaTro
 }
 
 // const apiReadProduct = (page) => {

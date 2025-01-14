@@ -238,9 +238,9 @@ const TrangQuanLy = () => {
                                 <Link to="baocao/doanhthunhatro" class="card-body hoverdadce0 d-block w-100 ps-5">
                                     Doanh thu nhà trọ
                                 </Link>
-                                <Link to="baocao/doanhthuphongtro" class="card-body hoverdadce0 d-block w-100 ps-5">
+                                {/* <Link to="baocao/doanhthuphongtro" class="card-body hoverdadce0 d-block w-100 ps-5">
                                     Doanh thu phòng trọ
-                                </Link>
+                                </Link> */}
                             </div>
                         </div>
                     </div>

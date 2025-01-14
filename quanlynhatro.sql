@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Dec 31, 2024 at 02:08 AM
+-- Generation Time: Jan 14, 2025 at 08:27 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -520,20 +520,21 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ThemNguoiDung` (IN `p_IDNguoiDung` 
     END IF;
 END$$
 
-CREATE DEFINER=`root`@`localhost` PROCEDURE `ThemNguoiDungVaoPhong` (IN `p_IDNguoiDung` CHAR(10), IN `p_MaLoaiNguoiDung` CHAR(10), IN `p_MatKhau` CHAR(100), IN `p_HoTen` VARCHAR(100), IN `p_SoDienThoai` VARCHAR(10), IN `p_AnhDaiDien` VARCHAR(100), IN `p_TaiKhoan` CHAR(10), IN `p_ManhaTro` CHAR(10), IN `p_Maphong` CHAR(10), IN `p_NgayVaoPhong` DATE, OUT `p_result` INT, OUT `p_message` VARCHAR(255))   BEGIN
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ThemNguoiDungVaoPhong` (IN `p_IDNguoiDung` CHAR(10), IN `p_MaLoaiNguoiDung` CHAR(10), IN `p_MatKhau` CHAR(100), IN `p_HoTen` VARCHAR(100), IN `p_SoDienThoai` VARCHAR(10), IN `p_AnhDaiDien` VARCHAR(100), IN `p_TaiKhoan` CHAR(100), IN `p_ManhaTro` CHAR(10), IN `p_Maphong` CHAR(10), IN `p_NgayVaoPhong` DATE, OUT `p_result` INT, OUT `p_message` VARCHAR(255))   BEGIN
     DECLARE EXIT HANDLER FOR SQLEXCEPTION
     BEGIN
+        -- Rollback nếu có lỗi xảy ra
         ROLLBACK;
         SET p_result = 0;
         SET p_message = "Lỗi trong quá trình xử lý.";
     END;
 
-    -- Label the block
+    -- Bắt đầu khối chính
     main_block: BEGIN
-        -- Start the transaction
+        -- Bắt đầu giao dịch
         START TRANSACTION;
 
-        -- Check if the TAIKHOAN already exists in NGUOIDUNG
+        -- Kiểm tra xem tài khoản đã tồn tại hay chưa
         IF EXISTS (
             SELECT 1
             FROM NGUOIDUNG
@@ -545,11 +546,11 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ThemNguoiDungVaoPhong` (IN `p_IDNgu
             LEAVE main_block;
         END IF;
 
-        -- Insert into NGUOIDUNG
+        -- Thêm người dùng vào bảng NGUOIDUNG
         INSERT INTO NGUOIDUNG (IDNGUOIDUNG, MALOAINGUOIDUNG, MATKHAU, HOTEN, SODIENTHOAI, ANHDIADIEN, TAIKHOAN)
         VALUES (p_IDNguoiDung, p_MaLoaiNguoiDung, p_MatKhau, p_HoTen, p_SoDienThoai, p_AnhDaiDien, p_TaiKhoan);
 
-        -- Check if NGAYVAOPHONG is after PHONG.NGAYTAO
+        -- Kiểm tra ngày vào phòng
         IF EXISTS (
             SELECT 1
             FROM PHONG
@@ -561,14 +562,14 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `ThemNguoiDungVaoPhong` (IN `p_IDNgu
             LEAVE main_block;
         END IF;
 
-        -- Insert into NGUOIDUNG_PHONG
+        -- Thêm thông tin vào bảng NGUOIDUNG_PHONG
         INSERT INTO NGUOIDUNG_PHONG (MANHATRO, MAPHONG, IDNGUOIDUNG, NGAYVAOPHONG)
         VALUES (p_ManhaTro, p_Maphong, p_IDNguoiDung, p_NgayVaoPhong);
 
-        -- Commit transaction
+        -- Hoàn tất giao dịch
         COMMIT;
 
-        -- Set success result and message after successful transaction
+        -- Thiết lập kết quả và thông báo thành công
         SET p_result = 1;
         SET p_message = "Thêm người dùng vào phòng thành công";
     END main_block;
@@ -634,6 +635,178 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `UpdateNhaTro` (IN `p_manhatro` CHAR
         MANHATRO = p_manhatro;
 END$$
 
+CREATE DEFINER=`root`@`localhost` PROCEDURE `XoaHoaDon` (IN `p_MaHoaDon` CHAR(10))   BEGIN
+    DECLARE v_Result INT DEFAULT 0;
+    DECLARE v_Message VARCHAR(255);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Rollback nếu có lỗi xảy ra
+        ROLLBACK;
+        SET v_Result = 0;
+        SET v_Message = 'Xóa hóa đơn không thành công. Đã xảy ra lỗi.';
+        SELECT v_Result AS Result, v_Message AS Message;
+    END;
+
+  
+
+    -- Bắt đầu giao dịch
+    START TRANSACTION;
+
+    -- Xóa các dòng liên quan trong bảng `chitiethd`
+    DELETE FROM chitiethd
+    WHERE MAHOADON = p_MaHoaDon;
+
+
+    -- Xóa hóa đơn trong bảng `hoadon`
+    DELETE FROM hoadon
+    WHERE MAHOADON = p_MaHoaDon;
+
+    -- Hoàn tất giao dịch
+    COMMIT;
+
+    -- Đặt kết quả thành công
+    SET v_Result = 1;
+    SET v_Message = 'Xóa hóa đơn thành công.';
+    SELECT v_Result AS Result, v_Message AS Message;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `XoaNguoiDung` (IN `p_IDNguoiDung` CHAR(10))   BEGIN
+    -- Declare a handler for exceptions
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION
+    BEGIN
+        -- Rollback in case of error
+        ROLLBACK;
+        SELECT 0 AS Status, 'Lỗi, vui lòng thử lại' AS Message;
+    END;
+
+    -- Start transaction
+    START TRANSACTION;
+
+    -- Delete from nguoidung_phong table
+    DELETE FROM nguoidung_phong
+    WHERE IDNGUOIDUNG = p_IDNguoiDung;
+
+    -- Delete from nguoidung table
+    DELETE FROM nguoidung
+    WHERE IDNGUOIDUNG = p_IDNguoiDung;
+
+    -- Commit the transaction
+    COMMIT;
+
+    -- Return success status
+    SELECT 1 AS Status, 'Xóa người dùng thành công' AS Message;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `XoaNhaTro` (IN `p_MaNhaTro` CHAR(10))   BEGIN
+    DECLARE v_Result INT DEFAULT 0;
+    DECLARE v_Message VARCHAR(255);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Rollback nếu có lỗi xảy ra
+        ROLLBACK;
+        SET v_Result = 0;
+        SET v_Message = 'Xóa nhà trọ không thành công. Đã xảy ra lỗi.';
+        SELECT v_Result AS Result, v_Message AS Message;
+    END;
+
+
+    -- Bắt đầu giao dịch
+    START TRANSACTION;
+
+    -- Xóa các dòng liên quan trong bảng `nguoidung_phong`
+    DELETE FROM nguoidung_phong
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Xóa các dòng liên quan trong bảng `chitiethd` và `hoadon`
+    DELETE FROM chitiethd
+    WHERE MAHOADON IN (
+        SELECT MAHOADON
+        FROM hoadon
+        WHERE MANHATRO = p_MaNhaTro
+    );
+
+    DELETE FROM hoadon
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Xóa các dòng liên quan trong bảng `chiso`
+    DELETE FROM chiso
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Xóa các dòng liên quan trong bảng `dichvu_phong`
+    DELETE FROM dichvu_phong
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Xóa các phòng liên quan trong bảng `phong`
+    DELETE FROM phong
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Xóa nhà trọ trong bảng `nhatro`
+    DELETE FROM nhatro
+    WHERE MANHATRO = p_MaNhaTro;
+
+    -- Hoàn tất giao dịch
+    COMMIT;
+
+    -- Đặt kết quả thành công
+    SET v_Result = 1;
+    SET v_Message = 'Xóa nhà trọ thành công.';
+    SELECT v_Result AS Result, v_Message AS Message;
+END$$
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `XoaPhong` (IN `p_MaNhaTro` CHAR(10), IN `p_MaPhong` CHAR(10))   BEGIN
+    DECLARE v_Result INT DEFAULT 0;
+    DECLARE v_Message VARCHAR(255);
+
+    DECLARE EXIT HANDLER FOR SQLEXCEPTION 
+    BEGIN
+        -- Rollback nếu có lỗi xảy ra
+        ROLLBACK;
+        SET v_Result = 0;
+        SET v_Message = 'Xóa phòng không thành công. Đã xảy ra lỗi.';
+        SELECT v_Result AS Result, v_Message AS Message;
+    END;
+
+    -- Bắt đầu giao dịch
+    START TRANSACTION;
+
+    -- Xóa các dòng liên quan trong bảng `nguoidung_phong`
+    DELETE FROM nguoidung_phong
+    WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong;
+
+    -- Xóa các dòng liên quan trong bảng `hoadon` và `chitiethd`
+    DELETE FROM chitiethd
+    WHERE MAHOADON IN (
+        SELECT MAHOADON
+        FROM hoadon
+        WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong
+    );
+
+    DELETE FROM hoadon
+    WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong;
+
+    -- Xóa các dòng liên quan trong bảng `chiso`
+    DELETE FROM chiso
+    WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong;
+
+    -- Xóa các dòng liên quan trong bảng `dichvu_phong`
+    DELETE FROM dichvu_phong
+    WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong;
+
+    -- Xóa phòng trong bảng `phong`
+    DELETE FROM phong
+    WHERE MANHATRO = p_MaNhaTro AND MAPHONG = p_MaPhong;
+
+    -- Hoàn tất giao dịch
+    COMMIT;
+
+    -- Đặt kết quả thành công
+    SET v_Result = 1;
+    SET v_Message = 'Xóa phòng thành công.';
+    SELECT v_Result AS Result, v_Message AS Message;
+END$$
+
 DELIMITER ;
 
 -- --------------------------------------------------------
@@ -660,92 +833,26 @@ INSERT INTO `chiso` (`NGAYGHI`, `MANHATRO`, `MAPHONG`, `MADICHVU`, `CHISOCU`) VA
 ('2023-01-01', 'NT001', '5', 'DV003', 0),
 ('2023-01-01', 'NT001', '8', 'DV002', 0),
 ('2023-01-01', 'NT001', '8', 'DV003', 0),
-('2023-01-01', 'NTR7992a82', '1', 'DV002', 0),
-('2023-01-01', 'NTR7992a82', '1', 'DV003', 0),
-('2023-01-01', 'NTR7992a82', '2', 'DV002', 0),
-('2023-01-01', 'NTR7992a82', '2', 'DV003', 0),
-('2023-01-01', 'NTR7992a82', '3', 'DV002', 0),
-('2023-01-01', 'NTR7992a82', '3', 'DV003', 0),
 ('2023-01-01', 'NTRe0b0771', '1', 'DV002', 0),
 ('2023-01-01', 'NTRe0b0771', '1', 'DV003', 0),
 ('2023-01-01', 'NTRe0b0771', '2', 'DV002', 0),
 ('2023-01-01', 'NTRe0b0771', '2', 'DV003', 0),
-('2023-01-01', 'NTRe0b0771', '3', 'DV002', 0),
-('2023-01-01', 'NTRe0b0771', '3', 'DV003', 0),
-('2023-01-05', 'NTR001', '1', 'DV002', 0),
-('2023-01-05', 'NTR001', '1', 'DV003', 0),
-('2023-01-10', 'NTR001', '2', 'DV002', 0),
-('2023-01-10', 'NTR001', '2', 'DV003', 0),
-('2023-02-03', 'NTR7992a82', '1', 'DV002', 45),
-('2023-02-03', 'NTR7992a82', '1', 'DV003', 3),
-('2023-02-03', 'NTR7992a82', '2', 'DV002', 11.9),
-('2023-02-03', 'NTR7992a82', '2', 'DV003', 3.8),
-('2023-02-03', 'NTR7992a82', '3', 'DV002', 65.7),
-('2023-02-03', 'NTR7992a82', '3', 'DV003', 5.5),
-('2023-02-05', 'NTR001', '1', 'DV002', 30),
-('2023-02-05', 'NTR001', '1', 'DV003', 34),
-('2023-02-15', 'NT001', '1', 'DV002', 0),
-('2023-02-15', 'NT001', '1', 'DV003', 0),
-('2023-03-03', 'NTR7992a82', '1', 'DV002', 90.5),
-('2023-03-03', 'NTR7992a82', '1', 'DV003', 6.8),
-('2023-03-03', 'NTR7992a82', '2', 'DV002', 34.7),
-('2023-03-03', 'NTR7992a82', '2', 'DV003', 5.9),
-('2023-03-03', 'NTR7992a82', '3', 'DV002', 88.6),
-('2023-03-03', 'NTR7992a82', '3', 'DV003', 9.7),
-('2023-03-05', 'NTR001', '1', 'DV002', 60),
-('2023-03-05', 'NTR001', '1', 'DV003', 60),
-('2023-03-15', 'NT001', '1', 'DV002', 45),
-('2023-03-15', 'NT001', '1', 'DV003', 2),
+('2023-01-02', 'NTR12ec4b7', '1', 'DV002', 0),
+('2023-01-02', 'NTR12ec4b7', '1', 'DV003', 0),
+('2023-01-02', 'NTR12ec4b7', '2', 'DV002', 0),
+('2023-01-02', 'NTR12ec4b7', '2', 'DV003', 0),
+('2023-01-09', 'NTRcab22ad', '1', 'DV002', 0),
+('2023-01-09', 'NTRcab22ad', '1', 'DV003', 0),
+('2023-01-15', 'NTRcab22ad', '1', 'DV002', 20),
+('2023-01-15', 'NTRcab22ad', '1', 'DV003', 10),
+('2023-02-15', 'NTRcab22ad', '1', 'DV002', 30),
+('2023-02-15', 'NTRcab22ad', '1', 'DV003', 20),
+('2023-03-02', 'NTRcab22ad', '1', 'DV002', 40),
+('2023-03-02', 'NTRcab22ad', '1', 'DV003', 30),
 ('2023-03-15', 'NT001', '5', 'DV002', 55),
 ('2023-03-15', 'NT001', '5', 'DV003', 3),
-('2023-04-03', 'NTR7992a82', '1', 'DV002', 95),
-('2023-04-03', 'NTR7992a82', '1', 'DV003', 10),
-('2023-04-03', 'NTR7992a82', '2', 'DV002', 40),
-('2023-04-03', 'NTR7992a82', '2', 'DV003', 7.9),
-('2023-04-03', 'NTR7992a82', '3', 'DV002', 100.9),
-('2023-04-03', 'NTR7992a82', '3', 'DV003', 10.9),
-('2023-04-05', 'NTR001', '1', 'DV002', 100),
-('2023-04-05', 'NTR001', '1', 'DV003', 68),
-('2023-05-03', 'NTR7992a82', '1', 'DV002', 150),
-('2023-05-03', 'NTR7992a82', '1', 'DV003', 15),
-('2023-05-03', 'NTR7992a82', '2', 'DV002', 50),
-('2023-05-03', 'NTR7992a82', '2', 'DV003', 10),
-('2023-05-03', 'NTR7992a82', '3', 'DV002', 120),
-('2023-05-03', 'NTR7992a82', '3', 'DV003', 11.9),
-('2023-05-05', 'NT001', '1', 'DV002', 77),
-('2023-05-05', 'NT001', '1', 'DV003', 5),
 ('2023-05-05', 'NT001', '3', 'DV002', 0),
-('2023-05-05', 'NT001', '3', 'DV003', 0),
-('2023-05-05', 'NTR001', '1', 'DV002', 111),
-('2023-05-05', 'NTR001', '1', 'DV003', 78),
-('2023-06-03', 'NTR7992a82', '1', 'DV002', 200),
-('2023-06-03', 'NTR7992a82', '1', 'DV003', 20),
-('2023-06-03', 'NTR7992a82', '2', 'DV002', 79),
-('2023-06-03', 'NTR7992a82', '2', 'DV003', 20),
-('2023-06-03', 'NTR7992a82', '3', 'DV002', 150),
-('2023-06-03', 'NTR7992a82', '3', 'DV003', 20),
-('2023-06-05', 'NT001', '1', 'DV002', 100),
-('2023-06-05', 'NT001', '1', 'DV003', 10),
-('2023-07-05', 'NT001', '1', 'DV002', 155.4),
-('2023-07-05', 'NT001', '1', 'DV003', 20),
-('2023-08-05', 'NT001', '1', 'DV002', 200),
-('2023-08-05', 'NT001', '1', 'DV003', 40),
-('2023-09-05', 'NT001', '1', 'DV002', 222.2),
-('2023-09-05', 'NT001', '1', 'DV003', 50),
-('2023-10-05', 'NT001', '1', 'DV002', 254.6),
-('2023-10-05', 'NT001', '1', 'DV003', 56),
-('2024-02-01', 'NTR7992a82', '1', 'DV002', 258),
-('2024-02-01', 'NTR7992a82', '1', 'DV003', 22),
-('2024-02-01', 'NTR7992a82', '2', 'DV002', 90),
-('2024-02-01', 'NTR7992a82', '2', 'DV003', 40),
-('2024-02-01', 'NTR7992a82', '3', 'DV002', 200),
-('2024-02-01', 'NTR7992a82', '3', 'DV003', 30),
-('2024-03-12', 'NTR7992a82', '1', 'DV002', 288),
-('2024-03-12', 'NTR7992a82', '1', 'DV003', 33),
-('2024-04-30', 'NTR7992a82', '1', 'DV002', 300),
-('2024-04-30', 'NTR7992a82', '1', 'DV003', 34),
-('2024-11-30', 'NT001', '2', 'DV002', 0),
-('2024-11-30', 'NT001', '2', 'DV003', 0);
+('2023-05-05', 'NT001', '3', 'DV003', 0);
 
 -- --------------------------------------------------------
 
@@ -764,96 +871,18 @@ CREATE TABLE `chitiethd` (
 --
 
 INSERT INTO `chitiethd` (`MAHOADON`, `MADICHVU`, `SOLUONGDASUDUNG`) VALUES
-('0a631203d6', 'DV001', 1),
-('0a631203d6', 'DV002', 10),
-('0a631203d6', 'DV003', 2),
-('21166c49a8', 'DV001', 1),
-('21166c49a8', 'DV002', 12),
-('21166c49a8', 'DV003', 1),
-('321704b3d1', 'DV001', 1),
-('321704b3d1', 'DV002', 50),
-('321704b3d1', 'DV003', 5),
-('3925aa73a6', 'DV001', 1),
-('3925aa73a6', 'DV002', 11),
-('3925aa73a6', 'DV003', 20),
-('3a0cdb1b8f', 'DV001', 1),
-('3a0cdb1b8f', 'DV002', 30),
-('3a0cdb1b8f', 'DV003', 11),
-('46c823a355', 'DV001', 1),
-('46c823a355', 'DV002', 50),
-('46c823a355', 'DV003', 10),
-('64f7c2254c', 'DV001', 1),
-('64f7c2254c', 'DV002', 66),
-('64f7c2254c', 'DV003', 6),
-('7db0d567cb', 'DV001', 1),
-('7db0d567cb', 'DV002', 5),
-('7db0d567cb', 'DV003', 2),
-('7e40a967ed', 'DV001', 1),
-('7e40a967ed', 'DV002', 23),
-('7e40a967ed', 'DV003', 4),
-('7fe1bd352d', 'DV001', 1),
-('7fe1bd352d', 'DV002', 23),
-('7fe1bd352d', 'DV003', 2),
-('8df1aef1b8', 'DV001', 1),
-('8df1aef1b8', 'DV002', 19),
-('8df1aef1b8', 'DV003', 1),
-('9e3ffcf19e', 'DV001', 1),
-('9e3ffcf19e', 'DV002', 58),
-('9e3ffcf19e', 'DV003', 2),
-('9ef9457903', 'DV001', 1),
-('9ef9457903', 'DV002', 12),
-('9ef9457903', 'DV003', 4),
-('c09a168eef', 'DV001', 1),
-('c09a168eef', 'DV002', 46),
-('c09a168eef', 'DV003', 4),
-('d17bd640a7', 'DV001', 1),
-('d17bd640a7', 'DV002', 55),
-('d17bd640a7', 'DV003', 5),
-('d4fe070f59', 'DV001', 1),
-('d4fe070f59', 'DV002', 30),
-('d4fe070f59', 'DV003', 8),
-('d58fb8dce1', 'DV001', 1),
-('d58fb8dce1', 'DV002', 5),
-('d58fb8dce1', 'DV003', 3),
-('ebf884fc3c', 'DV001', 1),
-('ebf884fc3c', 'DV002', 29),
-('ebf884fc3c', 'DV003', 10),
-('f55bbf509d', 'DV001', 1),
-('f55bbf509d', 'DV002', 12),
-('f55bbf509d', 'DV003', 1),
-('HD001', 'DV001', 1),
-('HD001', 'DV002', 40),
-('HD001', 'DV003', 8),
-('NT00113723', 'DV001', 1),
-('NT00113723', 'DV002', 23),
-('NT00113723', 'DV003', 5),
-('NT00119788', 'DV001', 1),
-('NT00119788', 'DV002', 45),
-('NT00119788', 'DV003', 2),
-('NT0011b631', 'DV001', 1),
-('NT0011b631', 'DV002', 32),
-('NT0011b631', 'DV003', 6),
-('NT0011d16b', 'DV001', 1),
-('NT0011d16b', 'DV002', 22),
-('NT0011d16b', 'DV003', 10),
-('NT0011f943', 'DV001', 1),
-('NT0011f943', 'DV002', 45),
-('NT0011f943', 'DV003', 20),
-('NT0011fc02', 'DV001', 1),
-('NT0011fc02', 'DV002', 55),
-('NT0011fc02', 'DV003', 10),
-('NT0011fda5', 'DV001', 1),
-('NT0011fda5', 'DV002', 32),
-('NT0011fda5', 'DV003', 3),
+('19203de0c3', 'DV001', 1),
+('19203de0c3', 'DV002', 10),
+('19203de0c3', 'DV003', 10),
+('8628b24c89', 'DV001', 1),
+('8628b24c89', 'DV002', 20),
+('8628b24c89', 'DV003', 10),
+('f5d0e46a65', 'DV001', 1),
+('f5d0e46a65', 'DV002', 10),
+('f5d0e46a65', 'DV003', 10),
 ('NT00153ef6', 'DV001', 1),
 ('NT00153ef6', 'DV002', 55),
-('NT00153ef6', 'DV003', 3),
-('NTR001132f', 'DV001', 1),
-('NTR001132f', 'DV002', 11),
-('NTR001132f', 'DV003', 10),
-('NTR7992a82', 'DV001', 1),
-('NTR7992a82', 'DV002', 45),
-('NTR7992a82', 'DV003', 3);
+('NT00153ef6', 'DV003', 3);
 
 -- --------------------------------------------------------
 
@@ -894,12 +923,6 @@ CREATE TABLE `dichvu_phong` (
 --
 
 INSERT INTO `dichvu_phong` (`MANHATRO`, `MAPHONG`, `MADICHVU`, `gia`) VALUES
-('NT001', '1', 'DV001', 3500000),
-('NT001', '1', 'DV002', 5500),
-('NT001', '1', 'DV003', 10000),
-('NT001', '2', 'DV001', 5000000),
-('NT001', '2', 'DV002', 3500),
-('NT001', '2', 'DV003', 8500),
 ('NT001', '3', 'DV001', 2500000),
 ('NT001', '3', 'DV002', 4000),
 ('NT001', '3', 'DV003', 8500),
@@ -912,21 +935,6 @@ INSERT INTO `dichvu_phong` (`MANHATRO`, `MAPHONG`, `MADICHVU`, `gia`) VALUES
 ('NT001', '8', 'DV001', 3000000),
 ('NT001', '8', 'DV002', 5500),
 ('NT001', '8', 'DV003', 9500),
-('NTR001', '1', 'DV001', 2000000),
-('NTR001', '1', 'DV002', 3500),
-('NTR001', '1', 'DV003', 8500),
-('NTR001', '2', 'DV001', 2000000),
-('NTR001', '2', 'DV002', 3500),
-('NTR001', '2', 'DV003', 8500),
-('NTR001', '3', 'DV001', 2000000),
-('NTR001', '3', 'DV002', 3500),
-('NTR001', '3', 'DV003', 8500),
-('NTR001', '4', 'DV001', 2000000),
-('NTR001', '4', 'DV002', 3500000),
-('NTR001', '4', 'DV003', 8500),
-('NTR001', '5', 'DV001', 2000000),
-('NTR001', '5', 'DV002', 3500),
-('NTR001', '5', 'DV003', 8500),
 ('NTR002', '1', 'DV001', 2000000),
 ('NTR002', '1', 'DV002', 3500),
 ('NTR002', '1', 'DV003', 8500),
@@ -942,24 +950,21 @@ INSERT INTO `dichvu_phong` (`MANHATRO`, `MAPHONG`, `MADICHVU`, `gia`) VALUES
 ('NTR002', '5', 'DV001', 2000000),
 ('NTR002', '5', 'DV002', 3500),
 ('NTR002', '5', 'DV003', 8500),
-('NTR7992a82', '1', 'DV001', 2200000),
-('NTR7992a82', '1', 'DV002', 3500),
-('NTR7992a82', '1', 'DV003', 9000),
-('NTR7992a82', '2', 'DV001', 2500000),
-('NTR7992a82', '2', 'DV002', 3500),
-('NTR7992a82', '2', 'DV003', 9500),
-('NTR7992a82', '3', 'DV001', 2000000),
-('NTR7992a82', '3', 'DV002', 3500),
-('NTR7992a82', '3', 'DV003', 6500),
+('NTR12ec4b7', '1', 'DV001', 2000000),
+('NTR12ec4b7', '1', 'DV002', 3500),
+('NTR12ec4b7', '1', 'DV003', 9000),
+('NTR12ec4b7', '2', 'DV001', 1500000),
+('NTR12ec4b7', '2', 'DV002', 3500),
+('NTR12ec4b7', '2', 'DV003', 10000),
+('NTRcab22ad', '1', 'DV001', 2000000),
+('NTRcab22ad', '1', 'DV002', 3500),
+('NTRcab22ad', '1', 'DV003', 4500),
 ('NTRe0b0771', '1', 'DV001', 2000000),
 ('NTRe0b0771', '1', 'DV002', 3500),
 ('NTRe0b0771', '1', 'DV003', 1000000),
 ('NTRe0b0771', '2', 'DV001', 5000000),
 ('NTRe0b0771', '2', 'DV002', 3500),
-('NTRe0b0771', '2', 'DV003', 10000),
-('NTRe0b0771', '3', 'DV001', 200),
-('NTRe0b0771', '3', 'DV002', 200),
-('NTRe0b0771', '3', 'DV003', 200);
+('NTRe0b0771', '2', 'DV003', 10000);
 
 -- --------------------------------------------------------
 
@@ -981,36 +986,10 @@ CREATE TABLE `hoadon` (
 --
 
 INSERT INTO `hoadon` (`MAHOADON`, `MANHATRO`, `MAPHONG`, `NGAYLAPHOADON`, `TONGTIEN`, `MATRANGTHAIHD`) VALUES
-('0a631203d6', 'NTR7992a82', '2', '2023-05-03', 2554950, '1'),
-('21166c49a8', 'NTR7992a82', '3', '2023-04-03', 2050850, '1'),
-('321704b3d1', 'NTR7992a82', '1', '2023-06-03', 2420000, '1'),
-('3925aa73a6', 'NTR7992a82', '2', '2024-02-01', 2728500, '1'),
-('3a0cdb1b8f', 'NTR7992a82', '1', '2024-03-12', 2404000, '2'),
-('46c823a355', 'NTR7992a82', '3', '2024-02-01', 2240000, '1'),
-('64f7c2254c', 'NTR7992a82', '3', '2023-02-03', 2265700, '1'),
-('7db0d567cb', 'NTR7992a82', '2', '2023-04-03', 2537550, '1'),
-('7e40a967ed', 'NTR7992a82', '3', '2023-03-03', 2107450, '1'),
-('7fe1bd352d', 'NTR7992a82', '2', '2023-03-03', 2599750, '1'),
-('8df1aef1b8', 'NTR7992a82', '3', '2023-05-03', 2073350, '1'),
-('9e3ffcf19e', 'NTR7992a82', '1', '2024-02-01', 2421000, '2'),
-('9ef9457903', 'NTR7992a82', '2', '2023-02-03', 2577750, '1'),
-('c09a168eef', 'NTR7992a82', '1', '2023-03-03', 2393450, '2'),
-('d17bd640a7', 'NTR7992a82', '1', '2023-05-03', 2437500, '1'),
-('d4fe070f59', 'NTR7992a82', '3', '2023-06-03', 2157650, '1'),
-('d58fb8dce1', 'NTR7992a82', '1', '2023-04-03', 2244550, '1'),
-('ebf884fc3c', 'NTR7992a82', '2', '2023-06-03', 2696500, '1'),
-('f55bbf509d', 'NTR7992a82', '1', '2024-04-30', 2251000, '2'),
-('HD001', 'NTR001', '1', '2023-04-05', 208000, '2'),
-('NT00113723', 'NT001', '1', '2023-06-05', 3676500, '2'),
-('NT00119788', 'NT001', '1', '2023-03-15', 3767500, '2'),
-('NT0011b631', 'NT001', '1', '2023-10-05', 3738200, '2'),
-('NT0011d16b', 'NT001', '1', '2023-09-05', 3722100, '2'),
-('NT0011f943', 'NT001', '1', '2023-08-05', 3945300, '2'),
-('NT0011fc02', 'NT001', '1', '2023-07-05', 3904700, '2'),
-('NT0011fda5', 'NT001', '1', '2023-05-05', 3706000, '2'),
-('NT00153ef6', 'NT001', '5', '2023-03-15', 2331000, '2'),
-('NTR001132f', 'NTR001', '1', '2023-05-05', 2123500, '2'),
-('NTR7992a82', 'NTR7992a82', '1', '2023-02-03', 2384500, '1');
+('19203de0c3', 'NTRcab22ad', '1', '2023-02-15', 2080000, '1'),
+('8628b24c89', 'NTRcab22ad', '1', '2023-01-15', 2115000, '1'),
+('f5d0e46a65', 'NTRcab22ad', '1', '2023-03-02', 2080000, '1'),
+('NT00153ef6', 'NT001', '5', '2023-03-15', 2331000, '2');
 
 -- --------------------------------------------------------
 
@@ -1063,23 +1042,22 @@ INSERT INTO `nguoidung` (`IDNGUOIDUNG`, `MALOAINGUOIDUNG`, `MATKHAU`, `HOTEN`, `
 ('ND002', 'LTK001', '1', 'Trần Thị B', '0912345678', 'tranthib.jpg', 'b', NULL),
 ('ND003', 'LTK002', '1', 'Phạm Văn C', '0923456789', 'phamvanc.jpg', 'c', NULL),
 ('ND004', 'LTK002', '1', 'Lê Thị D', '0934567890', 'lethid.jpg', 'd', NULL),
+('USER041841', 'LTK002', '$2a$10$KCSqgkM6W0awoMyD/1z4Q.aLigxJyqsjPGRFcZE7IG.yfq0YDYZg6', 'Nguyễn Châu Liêm', '0337405155', '', 'USER236cda', NULL),
 ('USER04b08d', 'LTK002', '$2a$10$ZqAYWsgxSnwtZa2.PHZaveK/Gf56PcHQ.cseeEZX5yClsl31EZWcO', 'Nguyễn Văn D', '0334344444', '', 'nguyenvand', NULL),
 ('USER0e4566', 'LTK001', '$2a$10$f/zQ029g9BqK6QBUF56cBOdt8Q6gKaZiGBgo1D2z8XTgGry56YZt6', 'Võ Văn Xĩ 2', NULL, NULL, 'xi2@gmail.com', NULL),
 ('user11111', 'LTK002', '1', 'sheee e', '0123456789', 'avatar.jpg', 'user11111', NULL),
 ('USER12ca21', 'LTK002', '$2a$10$RLY4BRDJNZIcAuhz6UUrJu58p9K./MMYzVzTnd5g1qCZ5Q4wXYzj6', 'Nguyễn Châu Liêm 5', '0337443433', '', 'xi5@gmail.', NULL),
 ('USER1e9a53', 'LTK002', '$2a$10$pgVaIYUzNF0Rc7qP/9EXRusr//dnzchPCBV25QqBN5pssx85q3Lou', 'Nguyễn Văn E', '1111111111', '', 'nguyenvane', NULL),
+('USER2b07cf', 'LTK001', '$2a$10$a8U57LLisraMHgD5chWVWeoLIO82a79UutM.UdxYEIV5fAhJqafEu', 'Thành nha', NULL, NULL, 'nhango@gmail.com', NULL),
 ('USER375912', 'LTK002', '11', 'Nguyễn Văn Võ', '0337405155', '', 'nha1', NULL),
 ('USER445690', 'LTK001', '$2a$10$5NH16486kuHSIAvkUIBNce5ksoYPvEfD2p1zbUXfJlJQYw1AIEMtm', 'nha chủ trọ', NULL, NULL, 'nhachutro1@gmail.com', NULL),
 ('USER4978c2', 'LTK002', '$2a$10$dxAGI6BPYTX6BrBM73vRsuB4Xma0iwLzNsdZULy.7XAXNWC2zN6nK', 'Nguyễn', '5435', '', 'nguyenvanb', '12312312'),
+('USER97290c', 'LTK002', '$2a$10$DIVEPz2sscHUIr7Fm5D1auXuVu5IEo1lB4Rm5hye6JKWByUetGJkO', 'Người thuê trọ 1', '0337405155', '', '', NULL),
 ('USERa3160c', 'LTK002', '11', 'Nguyễn Văn Võ', '0337405155', '', 'nha2', NULL),
-('USERa52ba8', 'LTK002', '$2a$10$xl89KFppZoYkJl2.a5hWlerZvYhGZt0HlXF4IVqYF3QaMF.YVeiEC', 'nha chủ trọ', '0337405155', '', 'nhavip', NULL),
-('USERb22400', 'LTK002', '$2a$10$7O5aabT6psHPeG4eTCo0GeoRmnnRqhlXjU.CwqCEoYUwPEkPok71C', 'Nguyễn Châu Liêm 2', '0337405155', '', 'xi2@gmail.', NULL),
 ('USERb5e60f', 'LTK002', '11', 'Nguyễn Văn Võ', '0337405155', '', 'nhanguoidu', NULL),
-('USERb9047d', 'LTK002', '$2a$10$OdLebJGrOr85I6QkQLXmfOGoIpFUZMc.F6c/Ysc2DNpg5.D1UBFYe', 'Nguyễn Văn F', '343243234', '', 'nguyenvanf', NULL),
 ('USERbdf1d0', 'LTK001', '$2a$10$DYU', 'Võ Văn Xĩ 1', NULL, NULL, 'xi1@gmail.com', NULL),
 ('USERc6ddc3', 'LTK002', '$2a$10$9o0qkuL1CKG5fennMbwiru0sPrGKCIO8FVkYWrGH01snmjOz.8vei', 'Nguyễn Châu Liêm 3', '0337405155', '', 'xi4@gmail.', NULL),
 ('USERca581d', 'LTK002', '$2a$10$Boj74i1M.jlt1QK2XhRhceVSyEfeWN9t/CaWykyV.q66Wpe40qc7G', 'Nguyễn Châu Liêm 1', '0337405155', '', 'xi3@gmail.', NULL),
-('USERe25b98', 'LTK002', '$2a$10$bPqZ8qGq9CkSaRH0skY0Ze7hEDaBfHBtkdketiQoUpxPx0E4uynYu', 'Nguyễn Văn A', '0999909910', '', 'nguyenvana', NULL),
 ('USERea5778', 'LTK002', '$2a$10$vsDpvhj7f721JMAjnOlT7eBJSfNZj9d6TwkjEot01E/PdEKrayWaW', 'Nguyễn Văn C', '0898786787', '', 'nguyenvanc', NULL),
 ('USERffbacd', 'LTK001', '$2a$10$pzv', 'Võ Văn Xĩ', NULL, NULL, 'xi@gmail.com', NULL),
 ('USR00111', 'LTK002', '1', 'Sơn Núi', '0337405155', 'anh.jpg', 'user22', NULL),
@@ -1115,27 +1093,12 @@ CREATE TABLE `nguoidung_phong` (
 --
 
 INSERT INTO `nguoidung_phong` (`MANHATRO`, `MAPHONG`, `IDNGUOIDUNG`, `NGAYVAOPHONG`) VALUES
-('NT001', '1', 'user11111', '2023-02-16'),
-('NTR7992a82', '1', 'USER4978c2', '2023-01-02'),
-('NTR7992a82', '1', 'USERa52ba8', '2023-01-02'),
-('NTRe0b0771', '1', 'USERb22400', '2023-01-02'),
+('NTR12ec4b7', '1', 'USER041841', '2023-01-15'),
+('NTR12ec4b7', '1', 'USER97290c', '2023-01-15'),
 ('NTRe0b0771', '1', 'USERca581d', '2023-01-02'),
-('NTR7992a82', '1', 'USERe25b98', '2023-01-02'),
-('NT001', '1', 'USR00111', '2023-02-16'),
-('NT001', '1', 'USR004', '2023-11-30'),
-('NTR001', '1', 'USR006', '2023-01-15'),
-('NT001', '1', 'USR007', '2023-11-30'),
-('NTR001', '1', 'USR007', '2023-01-20'),
-('NTR7992a82', '2', 'USER04b08d', NULL),
 ('NTRe0b0771', '2', 'USER12ca21', '2023-01-02'),
-('NT001', '2', 'USER375912', '2024-12-11'),
-('NT001', '2', 'USERa3160c', '2024-12-11'),
-('NT001', '2', 'USERb5e60f', '2024-12-11'),
 ('NTRe0b0771', '2', 'USERc6ddc3', '2023-01-02'),
-('NTR7992a82', '2', 'USERea5778', NULL),
-('NTR002', '2', 'USR008', '2023-01-15'),
-('NTR7992a82', '3', 'USER1e9a53', '2023-01-03'),
-('NTR7992a82', '3', 'USERb9047d', NULL);
+('NTR002', '2', 'USR008', '2023-01-15');
 
 -- --------------------------------------------------------
 
@@ -1162,12 +1125,11 @@ INSERT INTO `nhatro` (`MANHATRO`, `IDNGUOIDUNG`, `TENNHATRO`, `DIADIEM`, `NGAYTA
 ('NT001', 'ND001', 'aa', 'an kahnh', '2024-01-03', 22, 33, 'greenhouse.jpg'),
 ('NT002', 'ND001', 'test 1', 'can tho', '2020-12-01', 8.8, 8.9, 'sieuxinh.jpg'),
 ('NT003', '3', 'Cánh đồng xanh', '72 Lý Tự Trọng, Phường Bến Thành, Quận 1, Thành phố Hồ Chí Minh', '2023-01-23', 8.8, 5.6, 'canhdongxanh.jpg'),
-('NTR001', 'ND001', 'Nhà trọ Hoa Mai', '123 Đường Hoa Mai, Quận 1, TP.HCM', '2023-01-01', 30, 20, 'nhatro_hoamai.jpg'),
 ('NTR002', 'ND001', 'Nhà trọ Bình Minh', '456 Đường Bình Minh, Quận 2, TP.HCM', '2023-02-01', 25, 18, 'nhatro_binhminh.jpg'),
+('NTR12ec4b7', 'USER2b07cf', 'Nhà trọ 1', 'Nguyễn Văn Cừ, P, Ninh Kiều, Cần Thơ , Việt Nam', '2023-01-01', 23, 22, ''),
 ('NTR327ef94', 'ND001', 'Nha Ngô Trọ', 'Đường Số 9, An Bình, Ninh Kiều, Cần Thơ, Việt Nam', '2023-01-01', 49, 20, ''),
 ('NTR542c55f', 'ND001', 'Giấc mơ 1', 'Số 15, Đường Xuân Thủy, Phường Dịch Vọng Hậu, Quận Cầu Giấy, Hà Nội', '2023-01-01', 3.5, 5.3, ''),
-('NTR7992a82', 'USER445690', 'nha nghi so 2', 'quan ninh kieu, can tho', '2023-01-17', 54, 22, ''),
-('NTRbe6a923', 'USER445690', 'Xao xuyến 1ao xuyến 1', 'Phường an khánh quận ninh kiều, cần thơ', '2023-01-02', 43, 22, ''),
+('NTRcab22ad', 'USER445690', 'Quê hương', 'Nguyễn Văn Cừ', '2023-01-02', 23, 32, ''),
 ('NTRe0b0771', 'USER445690', 'Nha Ngô Trọ', 'Đường Số 9, An Bình, Ninh Kiều, Cần Thơ, Việt Nam', '2023-01-01', 50, 20, '');
 
 -- --------------------------------------------------------
@@ -1190,29 +1152,21 @@ CREATE TABLE `phong` (
 --
 
 INSERT INTO `phong` (`MANHATRO`, `MAPHONG`, `MOTA`, `CHIEUDAI`, `CHIEURONG`, `NGAYTAO`) VALUES
-('NT001', '1', 'Phòng tiện nghi, xanh, sạch, đẹp', 5, 4, '2023-02-15'),
-('NT001', '2', 'Phòng tầng 1', 5, 4, '2023-01-30'),
 ('NT001', '3', 'Phòng vip pro', 5.5, 8.6, '2023-05-05'),
 ('NT001', '4', 'Phòng thoáng mát với đầy đủ tiện nghi', 5.6, 3.4, '2023-01-01'),
 ('NT001', '5', 'Xinh lung linh', 7.8, 9, '2023-01-01'),
 ('NT001', '8', 'Xinh lung linh', 7.8, 9, '2023-01-01'),
-('NTR001', '1', 'Phòng 1 - Quạt trần, giường đơn', 4, 3, '2023-01-05'),
-('NTR001', '2', 'Phòng 2 - Máy lạnh, giường đôi', 5, 4, '2023-01-10'),
-('NTR001', '3', 'Phòng 3 - Có ban công, giường đơn', 4.5, 3.5, '2023-01-15'),
-('NTR001', '4', 'Phòng 4 - Không nội thất', 4, 3, '2023-01-20'),
-('NTR001', '5', 'Phòng 5 - Full nội thất', 5.5, 4.5, '2023-01-25'),
 ('NTR002', '1', 'Phòng 1 - Máy lạnh, giường đơn', 4.5, 3.5, '2023-02-05'),
 ('NTR002', '2', 'Phòng 2 - Quạt trần, giường đôi', 5, 4, '2023-02-10'),
 ('NTR002', '3', 'Phòng 3 - Có ban công, giường đôi', 5.5, 4.5, '2023-02-15'),
 ('NTR002', '4', 'Phòng 4 - Không nội thất', 4, 3, '2023-02-20'),
 ('NTR002', '5', 'Phòng 5 - Full nội thất, máy lạnh', 5, 4, '2023-02-25'),
 ('NTR002', '6', 'Đẹp, thoáng mát', 3.5, 3.5, '2023-01-15'),
-('NTR7992a82', '1', 'Phòng thoáng mát với đầy đủ tiện nghi', 5.5, 8.9, '2023-01-01'),
-('NTR7992a82', '2', 'Mát quá', 5.5, 7.8, '2023-01-01'),
-('NTR7992a82', '3', 'Phòng thoáng mát với đầy đủ tiện nghi', 6.7, 8.8, '2023-01-01'),
+('NTR12ec4b7', '1', 'Sạch đẹp, thoáng mát', 6, 4, '2023-01-02'),
+('NTR12ec4b7', '2', 's', 10, 2, '2023-01-02'),
+('NTRcab22ad', '1', 'Phòng thoáng mát với đầy đủ tiện nghi', 23, 2, '2023-01-09'),
 ('NTRe0b0771', '1', 'Phòng thoáng mát với đầy đủ tiện nghi', 6.7, 8.9, '2023-01-01'),
-('NTRe0b0771', '2', 'Phòng thoáng mát với đầy đủ tiện nghi', 9.9, 8.7, '2023-01-01'),
-('NTRe0b0771', '3', 'qua thoang mat', 20, 20, '2024-12-11');
+('NTRe0b0771', '2', 'Phòng thoáng mát với đầy đủ tiện nghi', 9.9, 8.7, '2023-01-01');
 
 -- --------------------------------------------------------
 

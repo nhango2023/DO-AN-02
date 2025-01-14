@@ -3,10 +3,12 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useEffect, useState } from "react";
-import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong, apiLayThongTinPhongFilter } from "../../services/apiServices";
+import { apiLayThongTinNhaTroFilter, apiLayThongTinPhong, apiLayThongTinPhongFilter, apiXoaPhong } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import SuaPhong from "./modals/SuaPhong";
+import { toast } from "react-toastify";
+
 const DSPhong = () => {
     const user = useSelector(state => state.user.data);
     const machutro = user.idnguoidung;
@@ -63,6 +65,15 @@ const DSPhong = () => {
     const [showSuaPhong, setShowSuaPhong] = useState(false);
     const [manhatro, setMaNhaTro] = useState("");
     const [maphong, setMaPhong] = useState("");
+    const handleXoaPhong = async (manhatro, maphong) => {
+        let res = await apiXoaPhong(manhatro, maphong);
+        if (res.errorCode == 0 && res.data == 1) {
+            toast.success(res.message);
+            layDsPhong();
+        } else {
+            toast.error(res.message);
+        }
+    }
     return (
         <>
             <div className="container">
@@ -137,6 +148,7 @@ const DSPhong = () => {
                 </div>
                 <div style={{ height: "572px" }} className="row mt-2">
                     {dsPhong.map((item, index) => {
+
                         return (
                             <>
                                 <div className="col-3 py-0 px-2">
@@ -151,7 +163,8 @@ const DSPhong = () => {
                                                     type="button" class="mx-3 btn btn-info">
                                                     <FaRegEdit
                                                     /></button>
-                                                <button type="button" class="mx-3  btn btn-info">
+                                                <button onClick={() => handleXoaPhong(item.MANHATRO, item.MAPHONG)}
+                                                    type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
                                             </div>
                                         </div>

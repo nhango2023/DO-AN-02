@@ -5,7 +5,7 @@ import { MdDeleteOutline } from "react-icons/md";
 import { IoIosInformationCircleOutline } from "react-icons/io";
 import "./DSHoaDon.css"
 import { useEffect, useState } from "react";
-import { apiLayThongTinHoaDon, apiLayThongTinNhaTroFilter, apiLayThongTinPhongFilter, apiSuaTrangThaiHoaDon } from "../../services/apiServices";
+import { apiLayThongTinHoaDon, apiLayThongTinNhaTroFilter, apiLayThongTinPhongFilter, apiSuaTrangThaiHoaDon, apiXoaHoaDon } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useOutletContext } from "react-router-dom";
@@ -79,6 +79,16 @@ const DSHoaDon = (props) => {
     useEffect(() => {
         layThongTinHoaDon();
     }, [currentPage])
+
+    const handleXoaHonDon = async (mahoadon) => {
+        let res = await apiXoaHoaDon(mahoadon);
+        if (res.errorCode == 0 && res.data == 1) {
+            toast.success(res.message);
+            layThongTinHoaDon();
+        } else {
+            toast.error(res.message);
+        }
+    }
     return (
         <>
             <div className="container">
@@ -168,7 +178,8 @@ const DSHoaDon = (props) => {
                                                         <IoIosInformationCircleOutline /></button>
                                                     <span class="hover-text">Chi tiết</span>
                                                 </div>
-                                                <button type="button" class="mx-3  btn btn-info">
+                                                <button onClick={() => { handleXoaHonDon(item.MAHOADON) }}
+                                                    type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
                                             </div>
                                         </div>

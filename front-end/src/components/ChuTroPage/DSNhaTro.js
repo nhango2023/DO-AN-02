@@ -3,10 +3,11 @@ import { FaRegEdit } from "react-icons/fa";
 import { MdDeleteOutline } from "react-icons/md";
 import { IoIosArrowBack } from "react-icons/io";
 import { useState, useEffect } from "react";
-import { apiLayThongTinNhaTro } from "../../services/apiServices";
+import { apiLayThongTinNhaTro, apiXoaNhaTro } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import SuaHoaDon from "./modals/SuaNhaTro.js";
+import { toast } from "react-toastify";
 
 const DSNhaTro = () => {
     const { currentPage, setTotalPage } = useOutletContext();
@@ -35,8 +36,15 @@ const DSNhaTro = () => {
     const [showSuaHoaDon, setShowSuaHoaDon] = useState(false);
     const [maNhaTro, setMaNhaTro] = useState("");
 
-    const funcTest = () => {
+    const handleXoaNhaTro = async (manhatro) => {
+        let res = await apiXoaNhaTro(manhatro);
+        if (res.errorCode == 0 && res.data == 1) {
+            toast.success(res.message);
 
+            layThongTinNhaTro();
+        } else {
+            toast.error(res.message);
+        }
     }
     return (
         <>
@@ -71,7 +79,8 @@ const DSNhaTro = () => {
                                                 <button onClick={() => { setShowSuaHoaDon(true); setMaNhaTro(item.MANHATRO) }}
                                                     type="button" class="mx-3 btn btn-info">
                                                     <FaRegEdit /></button>
-                                                <button type="button" class="mx-3  btn btn-info">
+                                                <button onClick={() => handleXoaNhaTro(item.MANHATRO)}
+                                                    type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
                                             </div>
                                         </div>

@@ -64,16 +64,19 @@ const ThemNguoiDungVaPhong = (props) => {
         delete temp["nhaplaimatkhau"];
         temp.maloainguoidung = "LTK002";
         temp.idnguoidung = taoMaNguoiDung();
+        temp.taikhoan = taoMaNguoiDung();
+        temp.matkhau = "";
         temp.manhatro = maNhaTroSelected;
         return temp;
     }
 
     const handleOnSave = async () => {
 
-        if (checkMatKhau() === 1) {
-            return;
-        }
+        // if (checkMatKhau() === 1) {
+        //     return;
+        // }
         let data = buildDataToSave();
+
         let res = await apiThemNguoiDungVaoPhong(data);
         console.log(data.taikhoan);
         if (res.errorCode === 0) {
@@ -167,7 +170,7 @@ const ThemNguoiDungVaPhong = (props) => {
                             />
                         </div>
 
-                        <div className="form-group">
+                        <div className="form-group d-none">
                             <label htmlFor="taikhoan">Tài Khoản</label>
                             <input
                                 type="text"
@@ -180,7 +183,7 @@ const ThemNguoiDungVaPhong = (props) => {
                             />
                         </div>
 
-                        <div className="form-group">
+                        <div className="form-group d-none">
                             <label htmlFor="matkhau">Mật Khẩu</label>
                             <input
                                 type="password"
@@ -193,7 +196,7 @@ const ThemNguoiDungVaPhong = (props) => {
                             />
                         </div>
 
-                        <div className="form-group">
+                        <div className="form-group d-none">
                             <label htmlFor="nhaplaimatkhau">Nhập Lại Mật Khẩu</label>
                             <input
                                 type="password"

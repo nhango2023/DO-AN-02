@@ -22,7 +22,7 @@ const TongDoanhThu = () => {
         if (res.errorCode == 0) {
             setDsDoanhThu(res.data);
             const groupedData = transformedData(res.data);
-            console.log(groupedData);
+
             setDaTaForPieChart(groupedData);
             let tongdoanhthu = 0;
             res.data.forEach(element => {
@@ -138,7 +138,7 @@ const TongDoanhThu = () => {
                         </div>
                     </div>
                 </div>
-                <div className="row mt-2 d-none" style={{ height: '610px' }}>
+                <div className="row mt-2" style={{ height: '610px' }}>
                     <div className="col-12">
                         <div className="chart-container">
                             <h4>Doanh thu</h4>
@@ -183,7 +183,7 @@ const TongDoanhThu = () => {
                     </div>
 
                 </div>
-                <div className="row mt-2 ">
+                {/* <div className="row mt-2 ">
                     <div className="d-flex justify-content-center">
                         {dataForPieChart.map((item, index) => {
                             return (
@@ -248,7 +248,7 @@ const TongDoanhThu = () => {
 
 
                     </div>
-                </div>
+                </div> */}
             </div>
 
         </>

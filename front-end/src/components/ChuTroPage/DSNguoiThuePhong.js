@@ -5,11 +5,13 @@ import { MdDeleteOutline } from "react-icons/md";
 import { useState, useEffect } from "react";
 import {
     apiLayThongTinNguoiThuePhong, apiLayThongTinNhaTroFilter,
-    apiLayThongTinPhongFilter
+    apiLayThongTinPhongFilter,
+    apiXoaNguoiDung
 } from "../../services/apiServices";
 import { useSelector } from "react-redux";
 import { useOutletContext } from "react-router-dom";
 import SuaNguoiThuePhong from "./modals/SuaNguoiThuePhong";
+import { toast } from "react-toastify";
 
 
 const DSNguoiThuePhong = () => {
@@ -66,6 +68,18 @@ const DSNguoiThuePhong = () => {
     }, [currentPage])
     const [idNguoiDung, setIdNguoiDung] = useState("");
     const [showSuaNguoiThuePhong, setShowSuaNguoiThuePhong] = useState(false);
+    const handleXoaNguoiDung = async (idnguoidung) => {
+        const res = await apiXoaNguoiDung(idnguoidung);
+        if (res.errorCode == 0 && res.data == 1) {
+            toast.success(res.message);
+            layDsNguoiThuePhong();
+        } else if (res.errorCode == 0 && res.data == 0) {
+            toast.error(res.message);
+        } else {
+            toast.error(res.message);
+        }
+
+    }
     return (
         <>
             <div className="container">
@@ -124,6 +138,7 @@ const DSNguoiThuePhong = () => {
                 </div>
                 <div style={{ height: "572px", overflowY: 'scroll' }} className="row mt-2">
                     {dsNguoiThuePhong.map((item, index) => {
+
                         return (
                             <>
                                 <div className="col-3 py-0 px-2">
@@ -136,7 +151,8 @@ const DSNguoiThuePhong = () => {
                                                 <button onClick={() => { setShowSuaNguoiThuePhong(true); setIdNguoiDung(item.IDNGUOIDUNG) }}
                                                     type="button" class="mx-3 btn btn-info">
                                                     <FaRegEdit /></button>
-                                                <button type="button" class="mx-3  btn btn-info">
+                                                <button onClick={() => handleXoaNguoiDung(item.IDNGUOIDUNG)}
+                                                    type="button" class="mx-3  btn btn-info">
                                                     <MdDeleteOutline /></button>
                                             </div>
                                         </div>

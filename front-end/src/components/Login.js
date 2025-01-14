@@ -117,7 +117,7 @@ const Login = () => {
                                                 Login</button>
                                         </div>
 
-                                        <p class="text-center text-muted mt-5 mb-0">Chưa có tài khoản<Link to={"dangkytaikhoan"}
+                                        <p class="text-center text-muted mt-5 mb-0">Chưa có tài khoản<Link to={"/dangkytaikhoan"}
                                             class="fw-bold text-body"><u> Đăng ký tài khoản</u></Link></p>
 
                                     </form>

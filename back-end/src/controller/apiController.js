@@ -634,8 +634,10 @@ const LayDoanhThu = async (req, res) => {
         let machutro = req.query.machutro;
         let manhatro = req.query.manhatro == "" ? null : req.query.manhatro;
         let nam = req.query.nam == "" ? null : req.query.nam;
+        console.log(machutro, manhatro, nam)
         let sql = `CALL layDoanhThu(?,?,?);`;
         let [result] = await conn.query(sql, [machutro, nam, manhatro]);
+
         return res.status(200).json({
             data: result[0],
             message: "Lấy doanh thu thành công",
@@ -882,6 +884,119 @@ const SuaNguoiDung = async (req, res) => {
         pool.releaseConnection(conn);
     }
 }
+
+const XoaNguoiDung = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const idnguoidung = req.query.idnguoidung;
+        let sql = "call XoaNguoiDung(?)";
+        let [results] = await conn.query(sql, [idnguoidung]);
+        let message = results[0][0].Message;
+        let result = results[0][0].Status;
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const XoaHoaDon = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const mahoadon = req.query.mahoadon;
+        let sql = "call XoaHoaDon(?)";
+        let [results] = await conn.query(sql, [mahoadon]);
+        let message = results[0][0].Message;
+        let result = results[0][0].Result;
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+const XoaPhong = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+
+        const maphong = req.query.maphong;
+        const manhatro = req.query.manhatro;
+        let sql = "CALL XoaPhong(?,?);";
+        let [results] = await conn.query(sql, [manhatro, maphong]);
+        let message = results[0][0].Message;
+        let result = results[0][0].Result;
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+const XoaNhaTro = async (req, res) => {
+    const conn = await pool.getConnection();
+    try {
+        const manhatro = req.query.manhatro;
+        let sql = "CALL XoaNhaTro(?);";
+        let [results] = await conn.query(sql, [manhatro]);
+        let message = results[0][0].Message;
+        let result = results[0][0].Result;
+        return res.status(200).json({
+            data: result,
+            message: message,
+            errorCode: 0,
+        })
+    }
+    catch (e) {
+        console.log(e);
+        return res.status(200).json({
+            data: [],
+            message: "Server error",
+            errorCode: -1,
+        })
+    }
+    finally {
+        pool.releaseConnection(conn);
+    }
+}
+
+
 module.exports = {
     layThongTinNhaTro,
     layThongTinNhaTroFilter,
@@ -907,7 +1022,11 @@ module.exports = {
     layThongTinDichVuPhongDeSua,
     SuaPhong,
     layThongTinNguoiDungDeSua,
-    SuaNguoiDung
+    SuaNguoiDung,
+    XoaNguoiDung,
+    XoaHoaDon,
+    XoaPhong,
+    XoaNhaTro
 }
 
 // const ReadProduct = async (req, res) => {
